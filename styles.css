@@ -25,3 +25,12 @@
 .democrat {
   fill: #1405bd;
 }
+
+#year-slider {
+  width: 100%;
+}
+
+#year-label {
+  font-size: xx-large;
+  font-weight: bolder;
+}

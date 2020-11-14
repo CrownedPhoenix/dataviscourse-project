@@ -28,7 +28,14 @@ class EngagementTerms {
 
     this.plotDiv.style("border", "1px solid red");
 
-    this.engagementPlot = new EngagementPlot("plot-div", data);
+    this.engagementPlot = new EngagementPlot("plot-div", data, 2015);
+    this.slider = new Slider(
+      "slider-div",
+      "year-slider",
+      2015,
+      2020,
+      (newYear) => this.engagementPlot.updateYear(newYear)
+    );
 
     d3.select("#facebook-tog").on("click", (e) =>
       this.engagementPlot.updatePlatform("Facebook")
@@ -45,7 +52,7 @@ class EngagementTerms {
 }
 
 class EngagementPlot {
-  constructor(mountPoint, data) {
+  constructor(mountPoint, data, activeYear) {
     this.svgFullHeight = 300;
     this.svgFullWidth = 1000;
     this.margin = { top: 10, right: 10, left: 30, bottom: 15 };
@@ -55,7 +62,7 @@ class EngagementPlot {
 
     this.circleRadius = 3;
     this.xBuffer = 1000;
-    this.activeYear = 2020;
+    this.activeYear = activeYear;
 
     this.rootDiv = d3.select(`#${mountPoint}`);
 
@@ -146,6 +153,13 @@ class EngagementPlot {
     this.rightPlotPoints = this.rootSVG
       .append("g")
       .attr("id", "right-plot-points");
+
+    this.yearLabel = this.rootSVG
+      .append("text")
+      .text(this.activeYear)
+      .attr("x", this.width - 100)
+      .attr("y", 50)
+      .attr("id", "year-label");
   }
 
   prepareData(data) {
@@ -157,6 +171,7 @@ class EngagementPlot {
   }
 
   render() {
+    this.yearLabel.text(this.activeYear);
     const dataForActiveYear = this.data.filter(
       (d) => d.Year == this.activeYear
     );
@@ -165,6 +180,8 @@ class EngagementPlot {
       .selectChildren("circle")
       .data(dataForActiveYear)
       .join("circle")
+      .transition()
+      .duration(300)
       .attr("cx", (d) => this.xScaleTotal(this.xTotalGetter(d)))
       .attr("cy", (d) => this.yScale(this.yTotalGetter(d)))
       .attr("r", this.circleRadius)
@@ -174,6 +191,8 @@ class EngagementPlot {
       .selectChildren("circle")
       .data(dataForActiveYear)
       .join("circle")
+      .transition()
+      .duration(300)
       .attr("cx", (d) => this.xScaleLeft(this.xLeftGetter(d)))
       .attr("cy", (d) => this.yScale(this.yLeftGetter(d)))
       .attr("r", this.circleRadius)
@@ -183,10 +202,14 @@ class EngagementPlot {
       .selectChildren("circle")
       .data(dataForActiveYear)
       .join("circle")
+      .transition()
+      .duration(300)
       .attr("cx", (d) => this.xScaleRight(this.xRightGetter(d)))
       .attr("cy", (d) => this.yScale(this.yRightGetter(d)))
       .attr("r", this.circleRadius)
       .attr("class", (d) => (d.Party == "R" ? "republican" : "democrat"));
+
+    this.yearLabel.text(this.activeYear);
   }
 
   setPlatform(platform) {
@@ -217,5 +240,39 @@ class EngagementPlot {
   updatePlatform(platform) {
     this.setPlatform(platform);
     this.render();
+  }
+
+  updateYear(newYear) {
+    this.activeYear = newYear;
+    this.render();
+  }
+}
+
+class Slider {
+  constructor(mountPoint, id, min, max, onInput) {
+    this.root = d3.select(`#${mountPoint}`);
+
+    this.root
+      .append("input")
+      .attr("id", id)
+      .attr("type", "range")
+      .attr("min", min)
+      .attr("max", max)
+      .attr("step", 1)
+      .on("input", (e) => onInput(e.target.value));
+
+    this.dataList = this.root.append("datalist").attr("id", "slider-list");
+
+    this.range = Array.from(Array(max - min), (_, x) => min + x);
+    this.render();
+  }
+
+  render() {
+    this.dataList
+      .selectChildren("option")
+      .data(this.range)
+      .join("option")
+      .attr("value", (d) => d)
+      .attr("label", (d) => d);
   }
 }
