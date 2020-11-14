@@ -1,15 +1,27 @@
 .facebook {
-    fill: #3B5998
+  fill: #3b5998;
+}
+
+.facebook-btn {
+  fill: #3b5998;
+  background-color: #3b5998;
+  border-color: #3b5998;
 }
 
 .twitter {
-    fill: #00acee
+  fill: #00acee;
+}
+
+.twitter-btn {
+  fill: #00acee;
+  background-color: #00acee;
+  border-color: #00acee;
 }
 
 .republican {
-    fill: #DE0100
+  fill: #de0100;
 }
 
 .democrat {
-    fill: #1405BD
+  fill: #1405bd;
 }
