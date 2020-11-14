@@ -12,16 +12,16 @@ class EngagementTerms {
     left.append("div").attr("id", "info-div");
 
     const right = this.rootDiv.append("div").attr("id", "right");
-    right.append("div").attr("id", "control-panel");
+    const controlPanel = right.append("div").attr("id", "control-panel");
     right.append("div").attr("id", "table-div");
 
-    d3.select("#control-panel")
+    controlPanel
       .selectChildren("button")
       .data([0, 1])
       .join("button")
       .text((d) => (d == 0 ? "Facebook" : "Twitter"))
       .attr("type", "button")
-      .attr("id", (d) => (d == 0 ? "faceboook-tog" : "twitter-tog"))
+      .attr("id", (d) => (d == 0 ? "facebook-tog" : "twitter-tog"))
       .classed("btn btn-primary", true)
       .classed("facebook-btn", (d) => d == 0)
       .classed("twitter-btn", (d) => d == 1);
@@ -29,6 +29,13 @@ class EngagementTerms {
     this.plotDiv.style("border", "1px solid red");
 
     this.engagementPlot = new EngagementPlot("plot-div", data);
+
+    d3.select("#facebook-tog").on("click", (e) =>
+      this.engagementPlot.updatePlatform("Facebook")
+    );
+    d3.select("#twitter-tog").on("click", (e) =>
+      this.engagementPlot.updatePlatform("Twitter")
+    );
 
     this.data = data;
     this.render();
@@ -46,6 +53,10 @@ class EngagementPlot {
     this.width = this.svgFullWidth - this.margin.left - this.margin.right;
     this.origin = { x: this.margin.left, y: this.margin.top };
 
+    this.circleRadius = 3;
+    this.xBuffer = 1000;
+    this.activeYear = 2020;
+
     this.rootDiv = d3.select(`#${mountPoint}`);
 
     this.rootSVG = this.rootDiv
@@ -57,6 +68,7 @@ class EngagementPlot {
     this.data = this.prepareData(data);
     this.dataInfo = this.prepareDataInfo(data);
 
+    this.setPlatform("Facebook");
     this.preparePlot();
     this.render();
   }
@@ -64,17 +76,17 @@ class EngagementPlot {
   preparePlot() {
     this.xScaleTotal = d3
       .scaleLinear()
-      .domain([0, this.dataInfo.totalPosts.max])
+      .domain([0, this.dataInfo.totalPosts.max + this.xBuffer])
       .range([this.origin.x, this.width / 3]);
 
     this.xScaleLeft = d3
       .scaleLinear()
-      .domain([0, this.dataInfo.totalPosts.max])
+      .domain([0, this.dataInfo.totalPosts.max + this.xBuffer])
       .range([this.width / 3, 2 * (this.width / 3)]);
 
     this.xScaleRight = d3
       .scaleLinear()
-      .domain([0, this.dataInfo.totalPosts.max])
+      .domain([0, this.dataInfo.totalPosts.max + this.xBuffer])
       .range([2 * (this.width / 3), this.width]);
 
     this.yScale = d3
@@ -122,13 +134,88 @@ class EngagementPlot {
       .classed("plot-x-axis-right", true)
       .attr("transform", `translate(0,${this.height})`)
       .call(this.xAxisGeneratorRight.tickFormat((t) => (t == 0 ? "" : t)));
+
+    this.totalPlotPoints = this.rootSVG
+      .append("g")
+      .attr("id", "total-plot-points");
+
+    this.leftPlotPoints = this.rootSVG
+      .append("g")
+      .attr("id", "left-plot-points");
+
+    this.rightPlotPoints = this.rootSVG
+      .append("g")
+      .attr("id", "right-plot-points");
   }
 
-  prepareData(data) {}
+  prepareData(data) {
+    return data;
+  }
 
   prepareDataInfo(data) {
     return { pctEffect: { max: 6 }, totalPosts: { max: 26238 } };
   }
 
-  render() {}
+  render() {
+    const dataForActiveYear = this.data.filter(
+      (d) => d.Year == this.activeYear
+    );
+
+    this.totalPlotPoints
+      .selectChildren("circle")
+      .data(dataForActiveYear)
+      .join("circle")
+      .attr("cx", (d) => this.xScaleTotal(this.xTotalGetter(d)))
+      .attr("cy", (d) => this.yScale(this.yTotalGetter(d)))
+      .attr("r", this.circleRadius)
+      .attr("class", (d) => (d.Party == "R" ? "republican" : "democrat"));
+
+    this.leftPlotPoints
+      .selectChildren("circle")
+      .data(dataForActiveYear)
+      .join("circle")
+      .attr("cx", (d) => this.xScaleLeft(this.xLeftGetter(d)))
+      .attr("cy", (d) => this.yScale(this.yLeftGetter(d)))
+      .attr("r", this.circleRadius)
+      .attr("class", (d) => (d.Party == "R" ? "republican" : "democrat"));
+
+    this.rightPlotPoints
+      .selectChildren("circle")
+      .data(dataForActiveYear)
+      .join("circle")
+      .attr("cx", (d) => this.xScaleRight(this.xRightGetter(d)))
+      .attr("cy", (d) => this.yScale(this.yRightGetter(d)))
+      .attr("r", this.circleRadius)
+      .attr("class", (d) => (d.Party == "R" ? "republican" : "democrat"));
+  }
+
+  setPlatform(platform) {
+    this.xTotalGetter = (d) =>
+      +d["Number of Facebook Posts"] + +d["Number of Tweets"];
+    this.yTotalGetter = (d) => +d["Average Percentage Effect"];
+
+    switch (platform) {
+      case "Facebook":
+        this.xLeftGetter = (d) => +d["Number of Facebook Posts"];
+        this.yLeftGetter = (d) => +d["Percentage Effect on Facebook Reactions"];
+
+        this.xRightGetter = (d) => +d["Number of Facebook Posts"];
+        this.yRightGetter = (d) => +d["Percentage Effect on Facebook Shares"];
+        break;
+      case "Twitter":
+        this.xLeftGetter = (d) => +d["Number of Tweets"];
+        this.yLeftGetter = (d) => +d["Percentage Effect on Twitter Favorites"];
+
+        this.xRightGetter = (d) => +d["Number of Tweets"];
+        this.yRightGetter = (d) => +d["Percentage Effect on Twitter Retweets"];
+        break;
+      default:
+        throw "Platform must be 'Facebook' or 'Twitter'";
+    }
+  }
+
+  updatePlatform(platform) {
+    this.setPlatform(platform);
+    this.render();
+  }
 }
