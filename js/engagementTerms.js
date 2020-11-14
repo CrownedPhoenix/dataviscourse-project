@@ -36,6 +36,7 @@ class EngagementTerms {
       2020,
       (newYear) => this.engagementPlot.updateYear(newYear)
     );
+    this.table = new Table("table-div", data);
 
     d3.select("#facebook-tog").on("click", (e) =>
       this.engagementPlot.updatePlatform("Facebook")
@@ -154,12 +155,23 @@ class EngagementPlot {
       .append("g")
       .attr("id", "right-plot-points");
 
-    this.yearLabel = this.rootSVG
+    this.labelGroup = this.rootSVG.append("g").attr("id", "plot-label");
+
+    this.labelGroup
       .append("text")
       .text(this.activeYear)
+      .attr("id", "year-label")
       .attr("x", this.width - 100)
-      .attr("y", 50)
-      .attr("id", "year-label");
+      .attr("y", 50);
+
+    this.labelGroup
+      .append("text")
+      .text(this.platform)
+      .attr("id", "platform-label")
+      .attr("x", this.width - 100)
+      .attr("y", 75)
+      .classed("facebook", this.platform == "Facebook")
+      .classed("twitter", this.platform == "Twitter");
   }
 
   prepareData(data) {
@@ -167,11 +179,20 @@ class EngagementPlot {
   }
 
   prepareDataInfo(data) {
-    return { pctEffect: { max: 6 }, totalPosts: { max: 26238 } };
+    return { pctEffect: { max: 10 }, totalPosts: { max: 26238 } };
+  }
+
+  updateLabel(activeYear, platform) {
+    this.labelGroup.select("#year-label").text(this.activeYear);
+    this.labelGroup
+      .select("#platform-label")
+      .text(this.platform)
+      .classed("facebook", this.platform == "Facebook")
+      .classed("twitter", this.platform == "Twitter");
   }
 
   render() {
-    this.yearLabel.text(this.activeYear);
+    this.updateLabel(this.activeYear, this.platform);
     const dataForActiveYear = this.data.filter(
       (d) => d.Year == this.activeYear
     );
@@ -208,11 +229,10 @@ class EngagementPlot {
       .attr("cy", (d) => this.yScale(this.yRightGetter(d)))
       .attr("r", this.circleRadius)
       .attr("class", (d) => (d.Party == "R" ? "republican" : "democrat"));
-
-    this.yearLabel.text(this.activeYear);
   }
 
   setPlatform(platform) {
+    this.platform = platform;
     this.xTotalGetter = (d) =>
       +d["Number of Facebook Posts"] + +d["Number of Tweets"];
     this.yTotalGetter = (d) => +d["Average Percentage Effect"];
@@ -274,5 +294,11 @@ class Slider {
       .join("option")
       .attr("value", (d) => d)
       .attr("label", (d) => d);
+  }
+}
+
+class Table {
+  constructor(mountPoint, data) {
+    this.root = d3.select(`#${mountPoint}`);
   }
 }

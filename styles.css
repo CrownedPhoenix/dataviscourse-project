@@ -30,7 +30,16 @@
   width: 100%;
 }
 
+#plot-label text {
+  text-anchor: middle;
+}
+
 #year-label {
   font-size: xx-large;
   font-weight: bolder;
+}
+
+#platform-label {
+  font-size: large;
+  font-weight: bold;
 }
