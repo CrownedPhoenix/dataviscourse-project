@@ -74,6 +74,28 @@
 
 .engagement-tr {
 }
+
 .engagement-top-th {
   background-color: darkorchid;
+  fill: #1405bd;
+}
+
+#partyTopTerms {
+  margin: auto;
+  width: 95vw;
+}
+
+.topTermsParent {
+  overflow-y: auto;
+}
+
+.nav {
+  height: 30px;
+  width: 100%;
+  background-color: #3b5998;
+  display: flex;
+}
+
+.topTermsNavButton {
+  margin: auto;
 }
