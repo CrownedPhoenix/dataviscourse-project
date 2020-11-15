@@ -26,6 +26,11 @@
   fill: #1405bd;
 }
 
+#control-panel {
+    display: flex;
+    justify-content: space-evenly;
+}
+
 #year-slider {
   width: 100%;
 }
@@ -42,4 +47,25 @@
 #platform-label {
   font-size: large;
   font-weight: bold;
+}
+
+#engagement-table {
+  border: 1px solid black;
+  text-align: center;
+  width: 100%;
+}
+
+.engagement-thead {
+  background-color: darkgray;
+}
+.engagement-th {
+  border: 1px solid black;
+}
+.engagement-thr {
+}
+
+.engagement-tr {
+}
+.engagement-top-th {
+  background-color: darkorchid;
 }

@@ -300,5 +300,75 @@ class Slider {
 class Table {
   constructor(mountPoint, data) {
     this.root = d3.select(`#${mountPoint}`);
+    this.tableRoot = this.root.append("table").attr("id", "engagement-table");
+
+    this.thead = this.tableRoot
+      .append("thead")
+      .classed("engagement-thead", true);
+
+    // this.thead
+    //   .append("tr")
+    //   .classed("engagement-thr", true)
+    //   .append("th")
+    //   .classed("engagement-top-th", true)
+    //   .attr("colspan", 3)
+    //   .text("Header");
+
+    this.colHeaders = this.thead.append("tr").classed("engagement-thr", true);
+    this.colHeaders
+      .selectChildren("th")
+      .data(["Term", "Avg %", "Party", "Reactions", "Shares"])
+      .join("th")
+      .classed("engagement-th", true)
+      .attr("colspan", 1)
+      .text((d) => d);
+
+    this.tbody = this.tableRoot.append("tbody");
+
+    this.rows = this.tbody
+      .selectChildren()
+      .data(data)
+      .join("tr")
+      .classed("engagement-tr", true);
+
+    this.data = data;
+    this.render();
+  }
+
+  render() {
+    this.rows
+      .selectChildren(".table-term")
+      .data((d) => [d])
+      .join("td")
+      .classed("table-term", true)
+      .text((d) => d["Term"]);
+
+    this.rows
+      .selectChildren(".table-avg")
+      .data((d) => [d])
+      .join("td")
+      .classed("table-avg", true)
+      .text((d) => d["Average Percentage Effect"]);
+
+    this.rows
+      .selectChildren(".table-party")
+      .data((d) => [d])
+      .join("td")
+      .classed("table-party", true)
+      .text((d) => d["Party"]);
+
+    this.rows
+      .selectChildren(".table-react-faves")
+      .data((d) => [d])
+      .join("td")
+      .classed("table-react-faves", true)
+      .text((d) => d["Percentage Effect on Facebook Reactions"]);
+
+    this.rows
+      .selectChildren(".table-share-retweets")
+      .data((d) => [d])
+      .join("td")
+      .classed("table-share-retweets", true)
+      .text((d) => d["Percentage Effect on Twitter Favorites"]);
   }
 }
