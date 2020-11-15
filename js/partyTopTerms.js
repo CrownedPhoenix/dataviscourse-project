@@ -104,9 +104,19 @@ class PartyTopTerms {
             .attr('height', this.height)
             .classed('bg', true);
 
+
+        this.divider = this.rootSVG.selectChildren('rect').data([0,0.00125,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
+            .join('rect')
+            .attr('x', d =>  d === 0? d * colSpacing : d * colSpacing + colOffset-2)
+            .attr('y', 0)
+            .attr('width', colSpacing-4)
+            .attr('height', this.height)
+            .attr('fill', '#dce6f5');
+
         this.gEle = this.rootSVG.selectChildren('g').data(this.data)
             .join('g')
             .attr('transform', (d, i) => 'translate(' + (this.columnPosition(i, columnSize) * colSpacing + colOffset) + ', ' + ((i % columnSize) * rowSpacing + rowOffset) + ')');
+
 
         this.drawColumns()
     }
