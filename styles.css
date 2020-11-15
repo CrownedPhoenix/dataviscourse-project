@@ -27,8 +27,8 @@
 }
 
 #control-panel {
-    display: flex;
-    justify-content: space-evenly;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 #year-slider {
@@ -60,6 +60,7 @@
 }
 .engagement-th {
   border: 1px solid black;
+  user-select: none;
 }
 .engagement-thr {
 }

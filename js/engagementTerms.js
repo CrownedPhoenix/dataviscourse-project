@@ -29,14 +29,17 @@ class EngagementTerms {
     this.plotDiv.style("border", "1px solid red");
 
     this.engagementPlot = new EngagementPlot("plot-div", data, 2015);
+    this.table = new Table("table-div", data, 2015);
     this.slider = new Slider(
       "slider-div",
       "year-slider",
       2015,
       2020,
-      (newYear) => this.engagementPlot.updateYear(newYear)
+      (newYear) => {
+        this.engagementPlot.updateYear(newYear);
+        this.table.updateYear(newYear);
+      }
     );
-    this.table = new Table("table-div", data);
 
     d3.select("#facebook-tog").on("click", (e) =>
       this.engagementPlot.updatePlatform("Facebook")
@@ -298,8 +301,51 @@ class Slider {
 }
 
 class Table {
-  constructor(mountPoint, data) {
+  constructor(mountPoint, data, activeYear) {
     this.root = d3.select(`#${mountPoint}`);
+    this.activeYear = activeYear;
+    this.sortInfo = { col: undefined, ascending: undefined };
+    this.columnInfo = {
+      ordered: ["Term", "Avg %", "Party", "Reaction %", "Share %"],
+      Term: {
+        comparator: (a, b) => a["Term"].localeCompare(b["Term"]),
+        get: (d) => d["Term"],
+      },
+      "Avg %": {
+        comparator: (a, b) =>
+          +a["Average Percentage Effect"] - +b["Average Percentage Effect"],
+        get: (d) => d["Average Percentage Effect"],
+      },
+      Party: {
+        comparator: (a, b) => a["Party"].localeCompare(b["Party"]),
+        get: (d) => d["Party"],
+      },
+      "Reaction %": {
+        comparator: (a, b) =>
+          +a["Percentage Effect on Facebook Reactions"] -
+          +b["Percentage Effect on Facebook Reactions"],
+        get: (d) => d["Percentage Effect on Facebook Reactions"],
+      },
+      "Favorite %": {
+        comparator: (a, b) =>
+          +a["Percentage Effect on Twitter Favorites"] -
+          +b["Percentage Effect on Twitter Favorites"],
+        get: (d) => d["Percentage Effect on Twitter Favorites"],
+      },
+      "Share %": {
+        comparator: (a, b) =>
+          +a["Percentage Effect on Facebook Shares"] -
+          +b["Percentage Effect on Facebook Shares"],
+        get: (d) => d["Percentage Effect on Facebook Shares"],
+      },
+      "Retweet %": {
+        comparator: (a, b) =>
+          +a["Percentage Effect on Twitter Retweets"] -
+          +b["Percentage Effect on Twitter Retweets"],
+        get: (d) => d["Percentage Effect on Twitter Retweets"],
+      },
+    };
+
     this.tableRoot = this.root.append("table").attr("id", "engagement-table");
 
     this.thead = this.tableRoot
@@ -315,60 +361,88 @@ class Table {
     //   .text("Header");
 
     this.colHeaders = this.thead.append("tr").classed("engagement-thr", true);
+
     this.colHeaders
       .selectChildren("th")
-      .data(["Term", "Avg %", "Party", "Reactions", "Shares"])
+      .data(this.columnInfo.ordered)
       .join("th")
       .classed("engagement-th", true)
       .attr("colspan", 1)
-      .text((d) => d);
+      .html((d) => this.getHeaderHtml(d))
+      .on("click", (e, d) => this.updateSort(d));
 
     this.tbody = this.tableRoot.append("tbody");
-
-    this.rows = this.tbody
-      .selectChildren()
-      .data(data)
-      .join("tr")
-      .classed("engagement-tr", true);
 
     this.data = data;
     this.render();
   }
 
   render() {
+    this.colHeaders.selectChildren("th").html((d) => this.getHeaderHtml(d));
+    let dataForActiveYear = this.data.filter((d) => d.Year == this.activeYear);
+
+    this.rows = this.tbody
+      .selectChildren()
+      .data(dataForActiveYear)
+      .join("tr")
+      .classed("engagement-tr", true);
     this.rows
       .selectChildren(".table-term")
       .data((d) => [d])
       .join("td")
       .classed("table-term", true)
-      .text((d) => d["Term"]);
+      .text((d) => this.columnInfo[this.columnInfo.ordered[0]].get(d));
 
     this.rows
       .selectChildren(".table-avg")
       .data((d) => [d])
       .join("td")
       .classed("table-avg", true)
-      .text((d) => d["Average Percentage Effect"]);
+      .text((d) => this.columnInfo[this.columnInfo.ordered[1]].get(d));
 
     this.rows
       .selectChildren(".table-party")
       .data((d) => [d])
       .join("td")
       .classed("table-party", true)
-      .text((d) => d["Party"]);
+      .text((d) => this.columnInfo[this.columnInfo.ordered[2]].get(d));
 
     this.rows
       .selectChildren(".table-react-faves")
       .data((d) => [d])
       .join("td")
       .classed("table-react-faves", true)
-      .text((d) => d["Percentage Effect on Facebook Reactions"]);
+      .text((d) => this.columnInfo[this.columnInfo.ordered[3]].get(d));
 
     this.rows
       .selectChildren(".table-share-retweets")
       .data((d) => [d])
       .join("td")
       .classed("table-share-retweets", true)
-      .text((d) => d["Percentage Effect on Twitter Favorites"]);
+      .text((d) => this.columnInfo[this.columnInfo.ordered[4]].get(d));
+  }
+
+  updateYear(newYear) {
+    this.activeYear = newYear;
+    this.render();
+  }
+
+  updateSort(col) {
+    if (this.sortInfo.col == col) {
+      this.sortInfo.ascending = !this.sortInfo.ascending;
+    } else {
+      this.sortInfo = { col, ascending: false };
+    }
+    let asc = this.sortInfo.ascending;
+    let comp = this.columnInfo[col].comparator;
+    this.data.sort((a, b) => (asc ? -comp(a, b) : comp(a, b)));
+    this.render();
+  }
+
+  getHeaderHtml(header) {
+    if (header == this.sortInfo.col) {
+      return header + (this.sortInfo.ascending ? "&#8650;" : "&#8648;");
+    }
+    return header;
   }
 }
