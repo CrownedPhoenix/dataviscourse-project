@@ -49,6 +49,11 @@
   font-weight: bold;
 }
 
+#table-div {
+  height: 500px;
+  overflow-x: auto;
+}
+
 #engagement-table {
   border: 1px solid black;
   text-align: center;
@@ -59,10 +64,12 @@
   background-color: darkgray;
 }
 .engagement-th {
-  border: 1px solid black;
   user-select: none;
+  position: sticky;
+  top: 0;
 }
-.engagement-thr {
+.engagement-thr th {
+  background-color: darkgray;
 }
 
 .engagement-tr {
