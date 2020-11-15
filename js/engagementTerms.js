@@ -41,12 +41,14 @@ class EngagementTerms {
       }
     );
 
-    d3.select("#facebook-tog").on("click", (e) =>
-      this.engagementPlot.updatePlatform("Facebook")
-    );
-    d3.select("#twitter-tog").on("click", (e) =>
-      this.engagementPlot.updatePlatform("Twitter")
-    );
+    d3.select("#facebook-tog").on("click", (e) => {
+      this.engagementPlot.updatePlatform("Facebook");
+      this.table.updatePlatform("Facebook");
+    });
+    d3.select("#twitter-tog").on("click", (e) => {
+      this.engagementPlot.updatePlatform("Twitter");
+      this.table.updatePlatform("Twitter");
+    });
 
     this.data = data;
     this.render();
@@ -378,7 +380,11 @@ class Table {
   }
 
   render() {
-    this.colHeaders.selectChildren("th").html((d) => this.getHeaderHtml(d));
+    this.colHeaders
+      .selectChildren("th")
+      .data(this.columnInfo.ordered)
+      .html((d) => this.getHeaderHtml(d));
+
     let dataForActiveYear = this.data.filter((d) => d.Year == this.activeYear);
 
     this.rows = this.tbody
@@ -422,8 +428,34 @@ class Table {
       .text((d) => this.columnInfo[this.columnInfo.ordered[4]].get(d));
   }
 
-  updateYear(newYear) {
-    this.activeYear = newYear;
+  updateYear(year) {
+    this.activeYear = year;
+    this.render();
+  }
+
+  updatePlatform(platform) {
+    switch (platform) {
+      case "Facebook":
+        this.columnInfo.ordered = [
+          "Term",
+          "Avg %",
+          "Party",
+          "Reaction %",
+          "Share %",
+        ];
+        break;
+      case "Twitter":
+        this.columnInfo.ordered = [
+          "Term",
+          "Avg %",
+          "Party",
+          "Favorite %",
+          "Retweet %",
+        ];
+        break;
+      default:
+        throw "Platform must be 'Facebook' or 'Twitter'";
+    }
     this.render();
   }
 
@@ -440,6 +472,7 @@ class Table {
   }
 
   getHeaderHtml(header) {
+    console.log(header);
     if (header == this.sortInfo.col) {
       return header + (this.sortInfo.ascending ? "&#8650;" : "&#8648;");
     }
