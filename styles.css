@@ -30,6 +30,21 @@
     display: flex;
 }
 
+.chartBlue {
+    height: 500px;
+    width:100%;
+    background-color: #dce6f5;
+    display: flex;
+    flex-direction: row;
+}
+
+.platformButtonContainer{
+    width: 25%;
+    height: 250px;
+    background-color: #3B5998;
+
+}
+
 .topTermsNavButton{
     margin: auto;
 }
