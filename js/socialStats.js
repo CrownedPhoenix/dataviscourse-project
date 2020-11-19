@@ -12,21 +12,34 @@ class SocialStats {
 
     }
 
-    mergeDataToSenator(){
-        let senatorDict = {};
-        for( let i = 0; i < this.data.length; i++){
+    mergeDataToSenator() {
+        let senatorDict = new Map();
+        for (let i = 0; i < this.data.length; i++) {
             let row = this.data[i];
-            let bioMarker =row['Bioguide ID'];
-            if(senatorDict[bioMarker] === undefined){
-                senatorDict[bioMarker] = {};
-            }
-            if(row['Platform'] === 'facebook'){
-                senatorDict[bioMarker]['fb'] = this.data[i]
+            let bioMarker = row['Bioguide ID'];
+
+            if (senatorDict.has(bioMarker)) {
+                //if it already has it in the map
+                let curCopy = senatorDict.get(bioMarker);
+
+                if (row['Platform'] === 'facebook') {
+                    curCopy['fb'] = row
+                } else {
+                    curCopy['tw'] = row
+                }
+                senatorDict.set(bioMarker, curCopy)
             } else {
-                senatorDict[bioMarker]['tw'] = this.data[i]
+                //if it's a new entry
+                if (row['Platform'] === 'facebook') {
+                    senatorDict.set(bioMarker, {'fb': this.data[i]})
+                } else {
+                    senatorDict.set(bioMarker, {'tw': this.data[i]})
+
+                }
             }
         }
         return senatorDict;
+
     }
 
     makeDenseChart() {
@@ -48,7 +61,13 @@ class SocialStats {
         const chartHeight = (height - chartHeightOffset) - chartSpaceAbove;
         const chartStart = 5;
 
-        let max = d3.max(Array.from(this.SenatorData, x => parseInt(x.id[feature])));
+        //get the max element from the selected feature.
+        let max = d3.max(Array.from(this.SenatorData, x => {
+            let int1 = x[1].fb !== undefined ? x[1].fb[feature] : 0;
+            let int2 = x[1].tw !== undefined ? x[1].tw[feature] : 0;
+            return d3.max([parseInt(int1), parseInt(int2)])
+        }));
+
         let yScale = d3.scaleLinear()
             .domain([0, max])
             .range([0, chartHeight - chartSpaceAbove]);
@@ -83,26 +102,28 @@ class SocialStats {
             .call(yAxis);
 
         //draw rectangles
-        let barWidth = 1 / this.SenatorData.length * (elementWidth - 30);
+        let barWidth = 1 / this.SenatorData.size * (elementWidth - 30);
         this.denseG = this.denseSVG.selectChildren('g')
             .data(this.SenatorData)
-            .join('g')
+            .join('g');
+        // .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
+        // .attr('y', d => chartHeight - yScale(d[feature]));
+
+        //facebook
+        this.denseG.append('rect')
             .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
-            .attr('y', d => chartHeight - yScale(d[feature]));
+            .attr('y', d => d[1].fb !== undefined ? chartHeight - yScale(d[1].fb[feature]) : 0)
+            .attr('width', barWidth)
+            .attr('height', d => d[1].fb !== undefined ? yScale(d[1].fb[feature]):0)
+            .attr('class', 'facebook');
+
 
         this.denseG.append('rect')
             .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
-            .attr('y', d => chartHeight - yScale(d[feature]))
+            .attr('y', d => d[1].tw !== undefined ? (chartHeight) - yScale(d[1].tw[feature]):0)
             .attr('width', barWidth)
-            .attr('height', d => yScale(d[feature]))
-            .attr('class', d => d.Platform === 'facebook' ? 'facebook' : 'twitter');
-
-        this.denseG.append('rect')
-            .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
-            .attr('y', d => (chartHeight) - yScale(d[feature]))
-            .attr('width', barWidth)
-            .attr('height', d => yScale(d[feature]))
-            .attr('class', d => d.Platform === 'facebook' ? 'twitter' : 'twitter');
+            .attr('height', d => d[1].tw !== undefined ? yScale(d[1].tw[feature]):0)
+            .attr('class', 'twitter');
 
     }
 
