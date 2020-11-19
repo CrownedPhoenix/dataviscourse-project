@@ -20,7 +20,8 @@ class SocialStats {
 
         const denseChartSize = this.denseChart.node().getBoundingClientRect();
 
-        this.drawDenseChart(this.data, 'Number of Active Accounts',denseChartSize.height, denseChartSize.width)
+        //'Number of Active Accounts'
+        this.drawDenseChart(this.data, 'Average Post Favorites/Reactions',denseChartSize.height, denseChartSize.width)
     }
 
     drawDenseChart(data, feature,  height, elementWidth) {
@@ -29,9 +30,10 @@ class SocialStats {
         const chartHeight = (height-chartHeightOffset)-chartSpaceAbove;
         const chartStart = 5;
 
+        let max = d3.max(Array.from(data, x => parseInt(x[feature])));
         let yScale = d3.scaleLinear()
-            .domain([0, d3.max(Array.from(this.data, x => x[feature]))])
-            .range([chartHeight-chartSpaceAbove, 0]);
+            .domain([0, max])
+            .range([0, chartHeight-chartSpaceAbove]);
 
         //create svg
         this.denseSVG = this.denseChart.append('svg')
@@ -63,10 +65,14 @@ class SocialStats {
             .call(yAxis);
 
         //draw rectangles
+        let barWidth = 1/data.length*(elementWidth-30);
         this.denseSVG.selectAll('rect').data(data)
             .join('rect')
-
-
+            .attr('x', (d, iter) => iter*barWidth + chartStart + 15)
+            .attr('y', d => chartHeight - yScale(d[feature]))
+            .attr('width', barWidth)
+            .attr('height', d => yScale(d[feature]))
+            .attr('class', d => d.Platform === 'facebook' ? 'facebook' : 'twitter');
 
     }
 
