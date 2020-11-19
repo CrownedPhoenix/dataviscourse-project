@@ -4,11 +4,29 @@ class SocialStats {
         this.rootDiv = d3.select(`#${mountPoint}`).classed('chartBlue', true);
         this.data = data;
 
+        this.SenatorData = this.mergeDataToSenator();
 
         this.makeAggCards();
 
         this.makeDenseChart()
 
+    }
+
+    mergeDataToSenator(){
+        let senatorDict = {};
+        for( let i = 0; i < this.data.length; i++){
+            let row = this.data[i];
+            let bioMarker =row['Bioguide ID'];
+            if(senatorDict[bioMarker] === undefined){
+                senatorDict[bioMarker] = {};
+            }
+            if(row['Platform'] === 'facebook'){
+                senatorDict[bioMarker]['fb'] = this.data[i]
+            } else {
+                senatorDict[bioMarker]['tw'] = this.data[i]
+            }
+        }
+        return senatorDict;
     }
 
     makeDenseChart() {
@@ -21,19 +39,19 @@ class SocialStats {
         const denseChartSize = this.denseChart.node().getBoundingClientRect();
 
         //'Number of Active Accounts'
-        this.drawDenseChart(this.data, 'Average Post Favorites/Reactions',denseChartSize.height, denseChartSize.width)
+        this.drawDenseChart('Average Post Favorites/Reactions', denseChartSize.height, denseChartSize.width)
     }
 
-    drawDenseChart(data, feature,  height, elementWidth) {
+    drawDenseChart(feature, height, elementWidth) {
         const chartHeightOffset = 10;
         const chartSpaceAbove = 10;
-        const chartHeight = (height-chartHeightOffset)-chartSpaceAbove;
+        const chartHeight = (height - chartHeightOffset) - chartSpaceAbove;
         const chartStart = 5;
 
-        let max = d3.max(Array.from(data, x => parseInt(x[feature])));
+        let max = d3.max(Array.from(this.SenatorData, x => parseInt(x.id[feature])));
         let yScale = d3.scaleLinear()
             .domain([0, max])
-            .range([0, chartHeight-chartSpaceAbove]);
+            .range([0, chartHeight - chartSpaceAbove]);
 
         //create svg
         this.denseSVG = this.denseChart.append('svg')
@@ -51,7 +69,7 @@ class SocialStats {
             .attr('stroke', 'black');
 
         let tickAmount = 5;
-        if(feature === 'Number of Active Accounts'){
+        if (feature === 'Number of Active Accounts') {
             tickAmount = 3;
         }
 
@@ -61,18 +79,30 @@ class SocialStats {
 
         //Append group and insert axis
         this.denseSVG.append("g")
-            .attr('transform', 'translate('+chartStart+' ' +chartSpaceAbove+' )')
+            .attr('transform', 'translate(' + chartStart + ' ' + chartSpaceAbove + ' )')
             .call(yAxis);
 
         //draw rectangles
-        let barWidth = 1/data.length*(elementWidth-30);
-        this.denseSVG.selectAll('rect').data(data)
-            .join('rect')
-            .attr('x', (d, iter) => iter*barWidth + chartStart + 15)
+        let barWidth = 1 / this.SenatorData.length * (elementWidth - 30);
+        this.denseG = this.denseSVG.selectChildren('g')
+            .data(this.SenatorData)
+            .join('g')
+            .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
+            .attr('y', d => chartHeight - yScale(d[feature]));
+
+        this.denseG.append('rect')
+            .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
             .attr('y', d => chartHeight - yScale(d[feature]))
             .attr('width', barWidth)
             .attr('height', d => yScale(d[feature]))
             .attr('class', d => d.Platform === 'facebook' ? 'facebook' : 'twitter');
+
+        this.denseG.append('rect')
+            .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
+            .attr('y', d => (chartHeight) - yScale(d[feature]))
+            .attr('width', barWidth)
+            .attr('height', d => yScale(d[feature]))
+            .attr('class', d => d.Platform === 'facebook' ? 'twitter' : 'twitter');
 
     }
 
