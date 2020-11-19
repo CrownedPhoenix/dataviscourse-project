@@ -109,21 +109,26 @@ class SocialStats {
         // .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
         // .attr('y', d => chartHeight - yScale(d[feature]));
 
-        //facebook
+        //first
         this.denseG.append('rect')
             .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
-            .attr('y', d => d[1].fb !== undefined ? chartHeight - yScale(d[1].fb[feature]) : 0)
+            .attr('y', d => {
+                return chartHeight - yScale(this.getFeature(d, true, feature)[0])
+            })
             .attr('width', barWidth)
-            .attr('height', d => d[1].fb !== undefined ? yScale(d[1].fb[feature]):0)
-            .attr('class', 'facebook');
+            .attr('height', d => yScale(this.getFeature(d, true, feature)[0]))
+            .attr('class', d => this.getFeature(d, true, feature)[1]);
 
 
+        //second
         this.denseG.append('rect')
             .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
-            .attr('y', d => d[1].tw !== undefined ? (chartHeight) - yScale(d[1].tw[feature]):0)
+            .attr('y', d  => {
+                return chartHeight - yScale(this.getFeature(d, false, feature)[0])
+            })
             .attr('width', barWidth)
-            .attr('height', d => d[1].tw !== undefined ? yScale(d[1].tw[feature]):0)
-            .attr('class', 'twitter');
+            .attr('height', d => yScale(this.getFeature(d, false, feature)[0]))
+            .attr('class', d => this.getFeature(d, false, feature)[1]);
 
     }
 
@@ -255,6 +260,41 @@ class SocialStats {
         return {"aggData": aggData, "titles": aggDataTitles}
     }
 
+    getFeature(d, largest, feature){
+        if (this.containsFB(d) && this.containsTW(d)) {
+            if (this.faceBookFeatureBigger(d, feature)) {
+                if(largest){
+                    return [d[1].fb[feature], 'facebook']
+                } else {
+                    return [d[1].tw[feature], 'twitter']
+                }
+            }
+            if(largest){
+                return [d[1].tw[feature], 'twitter']
+            } else {
+                return [d[1].fb[feature], 'facebook']
+            }
+        } else {
+            if (this.containsFB(d)) {
+                return [d[1].fb[feature], 'facebook']
+            } else {
+                return [d[1].tw[feature], 'twitter']
+            }
+        }
+    }
+
+    containsFB(d) {
+        return d[1].fb !== undefined
+    }
+
+    containsTW(d) {
+        return d[1].tw !== undefined
+    }
+
+    faceBookFeatureBigger(d, feature) {
+        return d[1].fb[feature] > d[1].tw[feature]
+    }
+
     //I made this before we decided to do cards.
     makeAggBarChart() {
         let elementWidth = this.rootDiv.node().getBoundingClientRect();
@@ -307,5 +347,4 @@ class SocialStats {
                 return 'rotate(-75,' + xPos + ',' + (bottomBarOffset + 10) + ')'
             })
     }
-
 }
