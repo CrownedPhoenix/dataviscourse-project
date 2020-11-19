@@ -8,7 +8,7 @@ class SocialStats {
 
         this.makeAggCards();
 
-        this.makeDenseChart()
+        this.makeDenseChart();
 
     }
 
@@ -59,7 +59,7 @@ class SocialStats {
         const chartHeightOffset = 10;
         const chartSpaceAbove = 10;
         const chartHeight = (height - chartHeightOffset) - chartSpaceAbove;
-        const chartStart = 5;
+        const chartStart = 45;
 
         //get the max element from the selected feature.
         let max = d3.max(Array.from(this.SenatorData, x => {
@@ -68,9 +68,6 @@ class SocialStats {
             return d3.max([parseInt(int1), parseInt(int2)])
         }));
 
-        let yScale = d3.scaleLinear()
-            .domain([0, max])
-            .range([0, chartHeight - chartSpaceAbove]);
 
         //create svg
         this.denseSVG = this.denseChart.append('svg')
@@ -92,7 +89,11 @@ class SocialStats {
             tickAmount = 3;
         }
 
-        let yAxis = d3.axisRight()
+        let yScale = d3.scaleSqrt()
+            .domain([0, max])
+            .range([0, chartHeight - chartSpaceAbove]);
+
+        let yAxis = d3.axisLeft()
             .scale(yScale)
             .tickFormat(d3.format("d"));
 
@@ -106,29 +107,32 @@ class SocialStats {
         this.denseG = this.denseSVG.selectChildren('g')
             .data(this.SenatorData)
             .join('g');
-        // .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
-        // .attr('y', d => chartHeight - yScale(d[feature]));
 
+        let iter = 0;
         //first
-        this.denseG.append('rect')
-            .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
+        this.denseG.selectChildren('.first').data(d => [d]).join('rect')
+            .attr('x', d => iter++ * barWidth + chartStart)
             .attr('y', d => {
+
                 return chartHeight - yScale(this.getFeature(d, true, feature)[0])
             })
             .attr('width', barWidth)
             .attr('height', d => yScale(this.getFeature(d, true, feature)[0]))
-            .attr('class', d => this.getFeature(d, true, feature)[1]);
+            .attr('class', d => this.getFeature(d, true, feature)[1])
+            .classed('first', true);
 
-
+        iter = 0;
         //second
-        this.denseG.append('rect')
-            .attr('x', (d, iter) => iter * barWidth + chartStart + 15)
+        this.denseG.selectChildren('.second').data(d => [d]).join('rect')
+            .attr('x',  d => iter++ * barWidth + chartStart)
             .attr('y', d  => {
-                return chartHeight - yScale(this.getFeature(d, false, feature)[0])
+                let scl = yScale(this.getFeature(d, false, feature)[0])
+                return chartHeight - scl
             })
             .attr('width', barWidth)
             .attr('height', d => yScale(this.getFeature(d, false, feature)[0]))
-            .attr('class', d => this.getFeature(d, false, feature)[1]);
+            .attr('class', d => this.getFeature(d, false, feature)[1])
+            .classed('second', true);
 
     }
 
@@ -264,21 +268,21 @@ class SocialStats {
         if (this.containsFB(d) && this.containsTW(d)) {
             if (this.faceBookFeatureBigger(d, feature)) {
                 if(largest){
-                    return [d[1].fb[feature], 'facebook']
+                    return [parseInt(d[1].fb[feature]), 'facebook']
                 } else {
-                    return [d[1].tw[feature], 'twitter']
+                    return  [parseInt(d[1].tw[feature]), 'twitter']
                 }
             }
             if(largest){
-                return [d[1].tw[feature], 'twitter']
+                return  [parseInt(d[1].tw[feature]), 'twitter']
             } else {
-                return [d[1].fb[feature], 'facebook']
+                return  [parseInt(d[1].fb[feature]), 'facebook']
             }
         } else {
             if (this.containsFB(d)) {
-                return [d[1].fb[feature], 'facebook']
+                return  [parseInt(d[1].fb[feature]), 'facebook']
             } else {
-                return [d[1].tw[feature], 'twitter']
+                return  [parseInt(d[1].tw[feature]), 'twitter']
             }
         }
     }
