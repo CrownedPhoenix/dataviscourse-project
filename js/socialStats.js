@@ -90,7 +90,7 @@ class SocialStats {
             .attr('height', height)
             .classed('bg', true);
 
-        //append axis
+        //append x-axis
         this.denseSVG.append('line')
             .attr('x1', chartStart)
             .attr('x2', elementWidth - 10)
@@ -106,7 +106,7 @@ class SocialStats {
 
         let yScale = d3.scaleSqrt()
             .domain([0, max])
-            .range([0, chartHeight - chartSpaceAbove]);
+            .range([chartHeight, chartSpaceAbove]);
 
         let yAxis = d3.axisLeft()
             .scale(yScale)
@@ -114,7 +114,7 @@ class SocialStats {
 
         //Append group and insert axis
         this.denseSVG.append("g")
-            .attr('transform', 'translate(' + chartStart + ' ' + chartSpaceAbove + ' )')
+            .attr('transform', 'translate(' + chartStart + ' ' + 0 + ' )')
             .call(yAxis);
 
         //draw rectangles
@@ -129,10 +129,10 @@ class SocialStats {
             .attr('x', d => iter++ * barWidth + chartStart+barChartOffset)
             .attr('y', d => {
 
-                return chartHeight - yScale(this.getFeature(d, true, feature)[0])
+                return yScale(this.getFeature(d, true, feature)[0])
             })
             .attr('width', barWidth)
-            .attr('height', d => yScale(this.getFeature(d, true, feature)[0]))
+            .attr('height', d => chartHeight-yScale(this.getFeature(d, true, feature)[0]))
             .attr('class', d => this.getFeature(d, true, feature)[1])
             .classed('first', true);
 
@@ -141,11 +141,10 @@ class SocialStats {
         this.denseG.selectChildren('.second').data(d => [d]).join('rect')
             .attr('x',  d => iter++ * barWidth + chartStart + barChartOffset)
             .attr('y', d  => {
-                let scl = yScale(this.getFeature(d, false, feature)[0]);
-                return chartHeight - scl
+                return yScale(this.getFeature(d, false, feature)[0]);
             })
             .attr('width', barWidth)
-            .attr('height', d => yScale(this.getFeature(d, false, feature)[0]))
+            .attr('height', d => chartHeight- yScale(this.getFeature(d, false, feature)[0]))
             .attr('class', d => this.getFeature(d, false, feature)[1])
             .classed('second', true);
 
