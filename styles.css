@@ -81,21 +81,112 @@
 }
 
 #partyTopTerms {
-  margin: auto;
-  width: 95vw;
+    margin: auto;
+    width: 95vw;
 }
 
 .topTermsParent {
-  overflow-y: auto;
+    overflow-y: auto;
 }
 
 .nav {
-  height: 30px;
-  width: 100%;
-  background-color: #3b5998;
-  display: flex;
+    height: 30px;
+    width: 100%;
+    background-color: #3B5998;
+    display: flex;
+}
+
+.chartBlue {
+    height: 500px;
+    width: 95vw;
+    background-color: #dce6f5;
+    display: flex;
+    flex-direction: column;
+}
+
+.platformButtonContainer {
+    width: 25%;
+    height: 250px;
+    background-color: #3B5998;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .topTermsNavButton {
-  margin: auto;
+    margin: auto;
+}
+
+.thirdTierToggle {
+    margin-bottom: 20px;
+    padding: 5px;
+}
+
+.cardContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 95vw;
+
+    flex-wrap: wrap;
+}
+
+.aggCard {
+    background-color: white; /*#dce6f5*/;
+    padding: 5px;
+    width: 300px;
+    height: 150px;
+
+    margin:12px;
+
+    border-style: solid;
+    border-color: black;
+    border-width: thin;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+}
+
+.cardTitle {
+    margin-top: 3px;
+}
+
+.denseChartContainer {
+    background-color: black;
+    display: flex;
+}
+
+.denseChartToggle {
+    background-color: #DE0100;
+    width: 60vw;
+    height: 100%;
+}
+
+.denseChart {
+    background-color: green;
+    width: 100%;
+    height: 70%;
+}
+
+.denseChartDataBreakdown {
+    background-color: orange;
+    width: 100%;
+    height: 30%;
+}
+
+/*should be square*/
+.denseChartZoom{
+    background-color: yellow;
+    width: 35vw;
+    height: 35vw;
+}
+
+.bg{
+    background-color: white;
 }
