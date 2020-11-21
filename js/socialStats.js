@@ -38,7 +38,14 @@ class SocialStats {
                 }
             }
         }
-        return senatorDict;
+
+        let senatorArr = [];
+        for( const ele of senatorDict){
+            senatorArr.push(ele[1])
+
+        }
+
+        return senatorArr;
 
     }
 
@@ -51,8 +58,15 @@ class SocialStats {
 
         const denseChartSize = this.denseChart.node().getBoundingClientRect();
 
+        this.sortBy = 'Average Post Favorites/Reactions';
+        this.SenatorData.sort((a, b) => {
+            let alpha = this.getFeature(a, true, this.sortBy)[0];
+            let beta = this.getFeature(b, true, this.sortBy)[0];
+            return alpha - beta;
+        });
+
         //'Number of Active Accounts'
-        this.drawDenseChart('Average Post Favorites/Reactions', denseChartSize.height, denseChartSize.width)
+        this.drawDenseChart(this.sortBy, denseChartSize.height, denseChartSize.width)
     }
 
     drawDenseChart(feature, height, elementWidth) {
@@ -60,11 +74,12 @@ class SocialStats {
         const chartSpaceAbove = 10;
         const chartHeight = (height - chartHeightOffset) - chartSpaceAbove;
         const chartStart = 45;
+        const barChartOffset = 1;
 
         //get the max element from the selected feature.
         let max = d3.max(Array.from(this.SenatorData, x => {
-            let int1 = x[1].fb !== undefined ? x[1].fb[feature] : 0;
-            let int2 = x[1].tw !== undefined ? x[1].tw[feature] : 0;
+            let int1 = x.fb !== undefined ? x.fb[feature] : 0;
+            let int2 = x.tw !== undefined ? x.tw[feature] : 0;
             return d3.max([parseInt(int1), parseInt(int2)])
         }));
 
@@ -103,15 +118,15 @@ class SocialStats {
             .call(yAxis);
 
         //draw rectangles
-        let barWidth = 1 / this.SenatorData.size * (elementWidth - 30);
-        this.denseG = this.denseSVG.selectChildren('g')
+        let barWidth = 1 / this.SenatorData.length * (elementWidth - (55 + barChartOffset));
+        this.denseG = this.denseSVG.selectChildren('.bars')
             .data(this.SenatorData)
             .join('g');
 
         let iter = 0;
         //first
         this.denseG.selectChildren('.first').data(d => [d]).join('rect')
-            .attr('x', d => iter++ * barWidth + chartStart)
+            .attr('x', d => iter++ * barWidth + chartStart+barChartOffset)
             .attr('y', d => {
 
                 return chartHeight - yScale(this.getFeature(d, true, feature)[0])
@@ -124,9 +139,9 @@ class SocialStats {
         iter = 0;
         //second
         this.denseG.selectChildren('.second').data(d => [d]).join('rect')
-            .attr('x',  d => iter++ * barWidth + chartStart)
+            .attr('x',  d => iter++ * barWidth + chartStart + barChartOffset)
             .attr('y', d  => {
-                let scl = yScale(this.getFeature(d, false, feature)[0])
+                let scl = yScale(this.getFeature(d, false, feature)[0]);
                 return chartHeight - scl
             })
             .attr('width', barWidth)
@@ -193,6 +208,8 @@ class SocialStats {
         let twTotalPosts = [0, 0];
         let fbAvgShares = [0, 0];
         let twAvgShares = [0, 0];
+        let fbAvgRetweet = [0, 0];
+        let twAvgRetweet = [0, 0];
         for (let i = 0; i < this.data.length; i++) {
             const row = this.data[i];
             if (row.Platform === 'facebook') {
@@ -204,6 +221,7 @@ class SocialStats {
                 fbReactions[poli] += parseInt(row['Average Post Favorites/Reactions']);
                 fbAvgShares[poli] += parseInt(row['Average Post Retweets/Shares']);
                 fbTotalPosts[poli] += parseInt(row['Total Posts']);
+                fbAvgRetweet[poli] += parseInt(row['Average Post Retweets/Shares']);
             } else {
                 let poli = 0;
                 if (row.Party.includes('D')) {
@@ -213,15 +231,16 @@ class SocialStats {
                 twReactions[poli] += parseInt(row['Average Post Favorites/Reactions']);
                 twAvgShares[poli] += parseInt(row['Average Post Retweets/Shares']);
                 twTotalPosts[poli] += parseInt(row['Total Posts']);
+                twTotalPosts[poli] += parseInt(row['Average Post Retweets/Shares']);
             }
         }
 
         //important that it goes every-other [fb, twitter, fb, twitter....]
-        const aggData = [fbAccounts, twAccounts, fbReactions, twReactions, fbTotalPosts, twTotalPosts, fbAvgShares, twAvgShares];
-        const aggDataTitles = ['Number of Accounts', 'Number of Reactions', 'Number of Total Posts', 'Average Number of Shares/Reactions'];
+        const aggData = [fbAccounts, twAccounts, fbReactions, twReactions, fbTotalPosts, twTotalPosts, fbAvgShares, twAvgShares, fbAvgRetweet, twAvgRetweet];
+        const aggDataTitles = ['Number of Accounts', 'Number of Reactions', 'Number of Total Posts', 'Average Number of Shares/Reactions', 'Average Post Retweets/Shares'];
         let toRet = [];
         for (let i = 0; i < aggDataTitles.length; i++) {
-            let posInAD = i * 2
+            let posInAD = i * 2;
             toRet.push({
                 'title': aggDataTitles[i],
                 'fbR': aggData[posInAD][0],
@@ -268,35 +287,35 @@ class SocialStats {
         if (this.containsFB(d) && this.containsTW(d)) {
             if (this.faceBookFeatureBigger(d, feature)) {
                 if(largest){
-                    return [parseInt(d[1].fb[feature]), 'facebook']
+                    return [parseInt(d.fb[feature]), 'facebook']
                 } else {
-                    return  [parseInt(d[1].tw[feature]), 'twitter']
+                    return  [parseInt(d.tw[feature]), 'twitter']
                 }
             }
             if(largest){
-                return  [parseInt(d[1].tw[feature]), 'twitter']
+                return  [parseInt(d.tw[feature]), 'twitter']
             } else {
-                return  [parseInt(d[1].fb[feature]), 'facebook']
+                return  [parseInt(d.fb[feature]), 'facebook']
             }
         } else {
             if (this.containsFB(d)) {
-                return  [parseInt(d[1].fb[feature]), 'facebook']
+                return  [parseInt(d.fb[feature]), 'facebook']
             } else {
-                return  [parseInt(d[1].tw[feature]), 'twitter']
+                return  [parseInt(d.tw[feature]), 'twitter']
             }
         }
     }
 
     containsFB(d) {
-        return d[1].fb !== undefined
+        return d.fb !== undefined
     }
 
     containsTW(d) {
-        return d[1].tw !== undefined
+        return d.tw !== undefined
     }
 
     faceBookFeatureBigger(d, feature) {
-        return d[1].fb[feature] > d[1].tw[feature]
+        return parseInt(d.fb[feature]) > parseInt(d.tw[feature])
     }
 
     //I made this before we decided to do cards.
