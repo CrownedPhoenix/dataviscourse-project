@@ -2,14 +2,14 @@ loadData("/data/termsParty.csv").then((data) => {
   console.log(data);
 
   const mountPoint = "partyTopTerms";
-  const partyTopTerms = new PartyTopTerms(mountPoint, data);
+  // const partyTopTerms = new PartyTopTerms(mountPoint, data);
 });
 
 loadData("/data/termsEngagement.csv").then((data) => {
   console.log(data);
 
   const mountPoint = "engagementTerms";
-  const engagementTerms = new EngagementTerms(mountPoint, data);
+  // const engagementTerms = new EngagementTerms(mountPoint, data);
 });
 
 loadData("/data/socialStats.csv").then((data) => {

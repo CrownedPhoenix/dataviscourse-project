@@ -40,7 +40,7 @@ class SocialStats {
         }
 
         let senatorArr = [];
-        for( const ele of senatorDict){
+        for (const ele of senatorDict) {
             senatorArr.push(ele[1])
 
         }
@@ -76,10 +76,15 @@ class SocialStats {
         this.denseSVG.append('line')
             .attr('x1', this.chartStart)
             .attr('x2', this.denseChartSize.width - 10)
-            .attr('y1', this.chartStart)
-            .attr('y2', this.chartStart)
+            .attr('y1', this.denseChartSize.height - 20) // -charSpaceAbove -chartHeightOffset
+            .attr('y2', this.denseChartSize.height - 20)
             .attr('stroke-width', 1)
             .attr('stroke', 'black');
+
+        //make this.denseG
+        this.denseG = this.denseSVG.selectChildren('.bars')
+            .data(this.SenatorData)
+            .join('g');
 
         //'Number of Active Accounts'
         this.drawDenseChart(this.sortBy)
@@ -112,33 +117,32 @@ class SocialStats {
             .tickFormat(d3.format("d"));
 
         //Append group and insert axis
+        this.denseSVG.selectAll('.axis').remove();
         this.denseSVG.append("g")
+            .classed('axis', true)
             .attr('transform', 'translate(' + this.chartStart + ' ' + 0 + ' )')
             .call(yAxis);
 
         //draw rectangles
         let barWidth = 1 / this.SenatorData.length * (this.denseChartSize.width - (55 + barChartOffset));
-        this.denseG = this.denseSVG.selectChildren('.bars')
-            .data(this.SenatorData)
-            .join('g');
 
         let iter = 0;
         //first
         this.denseG.selectChildren('.first').data(d => [d]).join('rect')
-            .attr('x', d => iter++ * barWidth + this.chartStart+barChartOffset)
-            .attr('y', d =>  yScale(this.getFeature(d, true, feature)[0]))
+            .attr('x', d => iter++ * barWidth + this.chartStart + barChartOffset)
+            .attr('y', d => yScale(this.getFeature(d, true, feature)[0]))
             .attr('width', barWidth)
-            .attr('height', d => chartHeight-yScale(this.getFeature(d, true, feature)[0]))
+            .attr('height', d => chartHeight - yScale(this.getFeature(d, true, feature)[0]))
             .attr('class', d => this.getFeature(d, true, feature)[1])
             .classed('first', true);
 
         iter = 0;
         //second
         this.denseG.selectChildren('.second').data(d => [d]).join('rect')
-            .attr('x',  d => iter++ * barWidth + this.chartStart + barChartOffset)
-            .attr('y', d  => yScale(this.getFeature(d, false, feature)[0]))
+            .attr('x', d => iter++ * barWidth + this.chartStart + barChartOffset)
+            .attr('y', d => yScale(this.getFeature(d, false, feature)[0]))
             .attr('width', barWidth)
-            .attr('height', d => chartHeight- yScale(this.getFeature(d, false, feature)[0]))
+            .attr('height', d => chartHeight - yScale(this.getFeature(d, false, feature)[0]))
             .attr('class', d => this.getFeature(d, false, feature)[1])
             .classed('second', true);
 
@@ -173,8 +177,8 @@ class SocialStats {
             .selectAll('.card').data(avgData)
             .join('div')
             .classed('aggCard', true)
-            .on('click', (click,d) => {
-               this.drawDenseChart(d.title)
+            .on('click', (click, d) => {
+                this.drawDenseChart(d.feature)
             });
 
         //append title to cards
@@ -251,12 +255,14 @@ class SocialStats {
 
         //important that it goes every-other [fb, twitter, fb, twitter....]
         const aggData = [fbAccounts, twAccounts, fbReactions, twReactions, fbTotalPosts, twTotalPosts, fbAvgShares, twAvgShares, fbAvgRetweet, twAvgRetweet];
-        const aggDataTitles = ['Number of Accounts', 'Number of Reactions', 'Number of Total Posts', 'Average Number of Shares/Reactions', 'Average Post Retweets/Shares'];
+        const aggDataTitles = ['Number of Active Accounts', 'Average Post Favorites/Reactions', 'Total Posts', 'Average Post Retweets/Shares', 'Average Post Retweets/Shares'];
+        const aggFeatureValues = ['Number of Active Accounts', 'Average Post Favorites/Reactions', 'Total Posts', 'Average Post Retweets/Shares', 'Average Post Retweets/Shares'];
         let toRet = [];
         for (let i = 0; i < aggDataTitles.length; i++) {
             let posInAD = i * 2;
             toRet.push({
                 'title': aggDataTitles[i],
+                'feature': aggFeatureValues[i],
                 'fbR': aggData[posInAD][0],
                 'fbD': aggData[posInAD][1],
                 'twR': aggData[posInAD + 1][0],
@@ -297,25 +303,25 @@ class SocialStats {
         return {"aggData": aggData, "titles": aggDataTitles}
     }
 
-    getFeature(d, largest, feature){
+    getFeature(d, largest, feature) {
         if (this.containsFB(d) && this.containsTW(d)) {
             if (this.faceBookFeatureBigger(d, feature)) {
-                if(largest){
+                if (largest) {
                     return [parseInt(d.fb[feature]), 'facebook']
                 } else {
-                    return  [parseInt(d.tw[feature]), 'twitter']
+                    return [parseInt(d.tw[feature]), 'twitter']
                 }
             }
-            if(largest){
-                return  [parseInt(d.tw[feature]), 'twitter']
+            if (largest) {
+                return [parseInt(d.tw[feature]), 'twitter']
             } else {
-                return  [parseInt(d.fb[feature]), 'facebook']
+                return [parseInt(d.fb[feature]), 'facebook']
             }
         } else {
             if (this.containsFB(d)) {
-                return  [parseInt(d.fb[feature]), 'facebook']
+                return [parseInt(d.fb[feature]), 'facebook']
             } else {
-                return  [parseInt(d.tw[feature]), 'twitter']
+                return [parseInt(d.tw[feature]), 'twitter']
             }
         }
     }
