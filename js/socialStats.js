@@ -72,6 +72,14 @@ class SocialStats {
             .classed('bg', true);
 
         this.chartStart = 45;
+
+
+        //make this.denseG
+        this.denseG = this.denseSVG.selectChildren('.bars')
+            .data(this.SenatorData)
+            .join('g')
+            .classed('bars', true);
+
         //append x-axis
         this.denseSVG.append('line')
             .attr('x1', this.chartStart)
@@ -80,11 +88,6 @@ class SocialStats {
             .attr('y2', this.denseChartSize.height - 20)
             .attr('stroke-width', 1)
             .attr('stroke', 'black');
-
-        //make this.denseG
-        this.denseG = this.denseSVG.selectChildren('.bars')
-            .data(this.SenatorData)
-            .join('g');
 
         //'Number of Active Accounts'
         this.drawDenseChart(this.sortBy)
@@ -103,6 +106,14 @@ class SocialStats {
             return d3.max([parseInt(int1), parseInt(int2)])
         }));
 
+        //sort
+        this.SenatorData.sort((a, b) => {
+            let alpha = this.getFeature(a, true, feature)[0];
+            let beta = this.getFeature(b, true, feature)[0];
+            return alpha - beta;
+        });
+
+        //scales
         let tickAmount = 5;
         if (feature === 'Number of Active Accounts') {
             tickAmount = 3;
@@ -126,6 +137,10 @@ class SocialStats {
         //draw rectangles
         let barWidth = 1 / this.SenatorData.length * (this.denseChartSize.width - (55 + barChartOffset));
 
+        this.denseG = this.denseSVG.selectChildren('.bars')
+            .data(this.SenatorData)
+            .join('g');
+
         let iter = 0;
         //first
         this.denseG.selectChildren('.first').data(d => [d]).join('rect')
@@ -136,8 +151,8 @@ class SocialStats {
             .attr('class', d => this.getFeature(d, true, feature)[1])
             .classed('first', true);
 
-        iter = 0;
         //second
+        iter = 0;
         this.denseG.selectChildren('.second').data(d => [d]).join('rect')
             .attr('x', d => iter++ * barWidth + this.chartStart + barChartOffset)
             .attr('y', d => yScale(this.getFeature(d, false, feature)[0]))
@@ -145,6 +160,16 @@ class SocialStats {
             .attr('height', d => chartHeight - yScale(this.getFeature(d, false, feature)[0]))
             .attr('class', d => this.getFeature(d, false, feature)[1])
             .classed('second', true);
+
+        // red or blue footer
+        iter = 0;
+        this.denseG.selectChildren('.footer').data(d => [d]).join('rect')
+            .attr('x', d => iter++ * barWidth + this.chartStart + barChartOffset)
+            .attr('y', this.denseChartSize.height - chartHeightOffset - chartSpaceAbove)
+            .attr('width', barWidth)
+            .attr('height', 4)
+            .classed('republican', d => this.isParty('R', d))
+            .classed('democrat', d=> this.isParty('D', d));
 
     }
 
@@ -301,6 +326,14 @@ class SocialStats {
         const aggData = [fbAccounts, twAccounts, fbReactions, twReactions, fbTotalPosts, twTotalPosts, fbAvgShares, twAvgShares];
         const aggDataTitles = ['Number of Accounts', 'Number of Reactions', 'Number of Total Posts', 'Average Number of Shares/Reactions'];
         return {"aggData": aggData, "titles": aggDataTitles}
+    }
+
+    isParty(party, d){
+        if(this.containsFB(d)){
+            return d.fb['Party'] === party
+        } else {
+            return d.tw['Party'] === party
+        }
     }
 
     getFeature(d, largest, feature) {
