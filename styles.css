@@ -1,83 +1,85 @@
 .facebook {
-  fill: #3b5998;
+    fill: #3b5998;
 }
 
 .facebook-btn {
-  fill: #3b5998;
-  background-color: #3b5998;
-  border-color: #3b5998;
+    fill: #3b5998;
+    background-color: #3b5998;
+    border-color: #3b5998;
 }
 
 .twitter {
-  fill: #00acee;
+    fill: #00acee;
 }
 
 .twitter-btn {
-  fill: #00acee;
-  background-color: #00acee;
-  border-color: #00acee;
+    fill: #00acee;
+    background-color: #00acee;
+    border-color: #00acee;
 }
 
 .republican {
-  fill: #de0100;
+    fill: #de0100;
 }
 
 .democrat {
-  fill: #1405bd;
+    fill: #1405bd;
 }
 
 #control-panel {
-  display: flex;
-  justify-content: space-evenly;
+    display: flex;
+    justify-content: space-evenly;
 }
 
 #year-slider {
-  width: 100%;
+    width: 100%;
 }
 
 #plot-label text {
-  text-anchor: middle;
+    text-anchor: middle;
 }
 
 #year-label {
-  font-size: xx-large;
-  font-weight: bolder;
+    font-size: xx-large;
+    font-weight: bolder;
 }
 
 #platform-label {
-  font-size: large;
-  font-weight: bold;
+    font-size: large;
+    font-weight: bold;
 }
 
 #table-div {
-  height: 500px;
-  overflow-x: auto;
+    height: 500px;
+    overflow-x: auto;
 }
 
 #engagement-table {
-  border: 1px solid black;
-  text-align: center;
-  width: 100%;
+    border: 1px solid black;
+    text-align: center;
+    width: 100%;
 }
 
 .engagement-thead {
-  background-color: darkgray;
+    background-color: darkgray;
 }
+
 .engagement-th {
-  user-select: none;
-  position: sticky;
-  top: 0;
+    user-select: none;
+    position: sticky;
+    top: 0;
 }
+
 .engagement-thr th {
-  background-color: darkgray;
+    background-color: darkgray;
 }
 
 .engagement-tr {
 }
 
 .engagement-top-th {
-  background-color: darkorchid;
-  fill: #1405bd;
+    background-color: darkorchid;
+    fill: #1405bd;
 }
 
 #partyTopTerms {
@@ -97,7 +99,7 @@
 }
 
 .chartBlue {
-    height: 500px;
+    height: 100vh;
     width: 95vw;
     background-color: #dce6f5;
     display: flex;
@@ -137,9 +139,9 @@
     background-color: white; /*#dce6f5*/;
     padding: 5px;
     width: 300px;
-    height: 150px;
+    height: 200px;
 
-    margin:12px;
+    margin: 12px;
 
     border-style: solid;
     border-color: black;
@@ -155,6 +157,7 @@
 
 .cardTitle {
     margin-top: 3px;
+    text-align: center;
 }
 
 .denseChartContainer {
@@ -181,12 +184,94 @@
 }
 
 /*should be square*/
-.denseChartZoom{
+.denseChartZoom {
     background-color: yellow;
     width: 35vw;
     height: 35vw;
 }
 
-.bg{
+.bg {
     background-color: white;
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 2px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.tableContainer {
+    width: 90%;
+}
+
+.controlPanel {
+    background-color: red;
+    width: 300px;
+    flex-direction: column;
+    display: flex;
+    justify-content: start;
+}
+.simpleFlex {
+    display: flex;
+}
+
+input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:focus {
+    outline: 0;
+}
+
+.toggle {
+    height: 32px;
+    width: 52px;
+    border-radius: 16px;
+    display: inline-block;
+    position: relative;
+    margin: 0;
+    border: 2px solid #474755;
+    background: linear-gradient(180deg, #2D2F39 0%, #1F2027 100%);
+    transition: all .2s ease;
+}
+
+.toggle:after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 2px rgba(44, 44, 44, 0.2);
+    transition: all 0.2s cubic-bezier(0.5, 0.1, 0.75, 1.35);
+}
+
+.toggle:checked {
+    border-color: #654FEC;
+}
+
+.toggle:checked:after {
+    transform: translatex(20px);
+}
+
+.toggleParent{
+    display: flex;
+    flex-direction: row;
+    padding:12px ;
 }

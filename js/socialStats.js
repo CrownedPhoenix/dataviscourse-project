@@ -56,7 +56,7 @@ class SocialStats {
         this.denseChartDataBreakdown = this.denseChartToggleContainer.append('div').classed('denseChartDataBreakdown', true);
         this.denseChartZoom = this.denseChartContainer.append('div').classed('denseChartZoom', true);
 
-        const denseChartSize = this.denseChart.node().getBoundingClientRect();
+        this.denseChartSize = this.denseChart.node().getBoundingClientRect();
 
         this.sortBy = 'Average Post Favorites/Reactions';
         this.SenatorData.sort((a, b) => {
@@ -65,15 +65,30 @@ class SocialStats {
             return alpha - beta;
         });
 
+        //create svg
+        this.denseSVG = this.denseChart.append('svg')
+            .attr('width', this.denseChartSize.width)
+            .attr('height', this.denseChartSize.height)
+            .classed('bg', true);
+
+        this.chartStart = 45;
+        //append x-axis
+        this.denseSVG.append('line')
+            .attr('x1', this.chartStart)
+            .attr('x2', this.denseChartSize.width - 10)
+            .attr('y1', this.chartStart)
+            .attr('y2', this.chartStart)
+            .attr('stroke-width', 1)
+            .attr('stroke', 'black');
+
         //'Number of Active Accounts'
-        this.drawDenseChart(this.sortBy, denseChartSize.height, denseChartSize.width)
+        this.drawDenseChart(this.sortBy)
     }
 
-    drawDenseChart(feature, height, elementWidth) {
+    drawDenseChart(feature) {
         const chartHeightOffset = 10;
         const chartSpaceAbove = 10;
-        const chartHeight = (height - chartHeightOffset) - chartSpaceAbove;
-        const chartStart = 45;
+        const chartHeight = (this.denseChartSize.height - chartHeightOffset) - chartSpaceAbove;
         const barChartOffset = 1;
 
         //get the max element from the selected feature.
@@ -82,22 +97,6 @@ class SocialStats {
             let int2 = x.tw !== undefined ? x.tw[feature] : 0;
             return d3.max([parseInt(int1), parseInt(int2)])
         }));
-
-
-        //create svg
-        this.denseSVG = this.denseChart.append('svg')
-            .attr('width', elementWidth)
-            .attr('height', height)
-            .classed('bg', true);
-
-        //append x-axis
-        this.denseSVG.append('line')
-            .attr('x1', chartStart)
-            .attr('x2', elementWidth - 10)
-            .attr('y1', chartHeight)
-            .attr('y2', chartHeight)
-            .attr('stroke-width', 1)
-            .attr('stroke', 'black');
 
         let tickAmount = 5;
         if (feature === 'Number of Active Accounts') {
@@ -114,11 +113,11 @@ class SocialStats {
 
         //Append group and insert axis
         this.denseSVG.append("g")
-            .attr('transform', 'translate(' + chartStart + ' ' + 0 + ' )')
+            .attr('transform', 'translate(' + this.chartStart + ' ' + 0 + ' )')
             .call(yAxis);
 
         //draw rectangles
-        let barWidth = 1 / this.SenatorData.length * (elementWidth - (55 + barChartOffset));
+        let barWidth = 1 / this.SenatorData.length * (this.denseChartSize.width - (55 + barChartOffset));
         this.denseG = this.denseSVG.selectChildren('.bars')
             .data(this.SenatorData)
             .join('g');
@@ -126,11 +125,8 @@ class SocialStats {
         let iter = 0;
         //first
         this.denseG.selectChildren('.first').data(d => [d]).join('rect')
-            .attr('x', d => iter++ * barWidth + chartStart+barChartOffset)
-            .attr('y', d => {
-
-                return yScale(this.getFeature(d, true, feature)[0])
-            })
+            .attr('x', d => iter++ * barWidth + this.chartStart+barChartOffset)
+            .attr('y', d =>  yScale(this.getFeature(d, true, feature)[0]))
             .attr('width', barWidth)
             .attr('height', d => chartHeight-yScale(this.getFeature(d, true, feature)[0]))
             .attr('class', d => this.getFeature(d, true, feature)[1])
@@ -139,10 +135,8 @@ class SocialStats {
         iter = 0;
         //second
         this.denseG.selectChildren('.second').data(d => [d]).join('rect')
-            .attr('x',  d => iter++ * barWidth + chartStart + barChartOffset)
-            .attr('y', d  => {
-                return yScale(this.getFeature(d, false, feature)[0]);
-            })
+            .attr('x',  d => iter++ * barWidth + this.chartStart + barChartOffset)
+            .attr('y', d  => yScale(this.getFeature(d, false, feature)[0]))
             .attr('width', barWidth)
             .attr('height', d => chartHeight- yScale(this.getFeature(d, false, feature)[0]))
             .attr('class', d => this.getFeature(d, false, feature)[1])
@@ -151,22 +145,45 @@ class SocialStats {
     }
 
     makeAggCards() {
-        this.cardContainer = this.rootDiv.append('div').classed('cardContainer', true);
+        this.cardContainer = this.rootDiv.append('div').classed('simpleFlex', true);
 
         const avgData = this.getAverageDataByParty();
 
-
-        this.cards = this.cardContainer.selectAll('.card').data(avgData)
+        //build control panel
+        let toggles = ['Party', 'Facebook', 'Twitter', 'Linear Scale'];
+        const inputs = this.cardContainer.append('div')
+            .classed('controlPanel', true)
+            .selectChildren('input')
+            .data(toggles)
             .join('div')
-            .classed('aggCard', true);
+            .classed('toggleParent', true);
 
-        //append title
-        this.cards.append('h3')
+        //build inputs
+        inputs.append('input')
+            .attr('type', 'checkbox')
+            .classed('toggle', true);
+
+        //build inputs titles
+        inputs.selectChildren('h5').data(d => [d]).join('h5').text(d => d);
+
+
+        //build the selectable cards.
+        this.cards = this.cardContainer.append('div')
+            .classed('cardContainer', true)
+            .selectAll('.card').data(avgData)
+            .join('div')
+            .classed('aggCard', true)
+            .on('click', (click,d) => {
+               this.drawDenseChart(d.title)
+            });
+
+        //append title to cards
+        this.cards.append('h5')
             .text(d => d.title)
             .classed('cardTitle', true);
 
-        //append table
-        this.table = this.cards.append('div').html(d => {
+        //append table to cards
+        this.table = this.cards.append('div').classed('tableContainer', true).html(d => {
 
             return `<table>
                         <tr>
@@ -193,8 +210,6 @@ class SocialStats {
 
 
         })
-
-
     }
 
     getAverageDataByParty() {
@@ -230,7 +245,7 @@ class SocialStats {
                 twReactions[poli] += parseInt(row['Average Post Favorites/Reactions']);
                 twAvgShares[poli] += parseInt(row['Average Post Retweets/Shares']);
                 twTotalPosts[poli] += parseInt(row['Total Posts']);
-                twTotalPosts[poli] += parseInt(row['Average Post Retweets/Shares']);
+                twAvgRetweet[poli] += parseInt(row['Average Post Retweets/Shares']);
             }
         }
 
