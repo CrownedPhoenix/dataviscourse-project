@@ -10,6 +10,7 @@ class SocialStats {
 
         this.makeDenseChart();
 
+        this.makeZoomChart()
     }
 
     mergeDataToSenator() {
@@ -46,6 +47,33 @@ class SocialStats {
         }
 
         return senatorArr;
+
+    }
+
+    makeZoomChart(){
+        this.zoomRoot = d3.select(`.denseChartZoom`);
+        this.denseZoomChartSize = this.zoomRoot.node().getBoundingClientRect();
+
+        //create svg
+        this.denseZoomSVG = this.zoomRoot.append('svg')
+            .attr('width', this.denseZoomChartSize.width)
+            .attr('height', this.denseZoomChartSize.height);
+            // .classed('bg', true); //uncomment for blue bg
+
+        //make this.denseG
+        this.denseGZoom = this.denseZoomSVG.selectChildren('.bars')
+            .data(this.SenatorData)
+            .join('g')
+            .classed('bars', true);
+
+        //append x-axis
+        this.denseZoomSVG.append('line')
+            .attr('x1', 0)
+            .attr('x2', this.denseZoomChartSize.width)
+            .attr('y1', this.denseZoomChartSize.height - 20) // -charSpaceAbove -chartHeightOffset
+            .attr('y2', this.denseZoomChartSize.height - 20)
+            .attr('stroke-width', 1)
+            .attr('stroke', 'black');
 
     }
 
@@ -88,6 +116,9 @@ class SocialStats {
             .attr('y2', this.denseChartSize.height - 20)
             .attr('stroke-width', 1)
             .attr('stroke', 'black');
+
+        //make brush
+        this.denseSVG.call(d3.brushX().extent([[this.chartStart, 0],[this.denseChartSize.width - 10, this.denseChartSize.height]]).on("brush", this.brushed));
 
         //'Number of Active Accounts'
         this.drawDenseChart(this.sortBy)
@@ -169,8 +200,11 @@ class SocialStats {
             .attr('width', barWidth)
             .attr('height', 4)
             .classed('republican', d => this.isParty('R', d))
-            .classed('democrat', d=> this.isParty('D', d));
+            .classed('democrat', d => this.isParty('D', d));
 
+    }
+
+    brushed(selection) {
     }
 
     makeAggCards() {
@@ -328,8 +362,8 @@ class SocialStats {
         return {"aggData": aggData, "titles": aggDataTitles}
     }
 
-    isParty(party, d){
-        if(this.containsFB(d)){
+    isParty(party, d) {
+        if (this.containsFB(d)) {
             return d.fb['Party'] === party
         } else {
             return d.tw['Party'] === party
