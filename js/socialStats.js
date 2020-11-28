@@ -54,7 +54,7 @@ class SocialStats {
 
     this.setSort("fb", "Total Posts");
 
-    this.maximums = this.findMaximums();
+    this.findMaximums();
 
     this.makeAggCards();
 
@@ -72,16 +72,15 @@ class SocialStats {
   }
 
   findMaximums() {
-    const maximums = {};
+    this.maximums = {};
     for (const [feature, info] of Object.entries(this.features)) {
       const sortStyle = this.sortStyles["max"];
       const comp = sortStyle.getComparator(feature);
       const maxElement = this.SenatorData.reduce((max, el) => {
         return comp(el, max) > 0 ? el : max;
       });
-      maximums[feature] = sortStyle.getFeature(maxElement, feature);
+      this.maximums[feature] = sortStyle.getFeature(maxElement, feature);
     }
-    return maximums;
   }
 
   mergeDataToSenator() {
