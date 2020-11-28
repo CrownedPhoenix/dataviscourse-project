@@ -260,17 +260,18 @@ class SocialStats {
             .classed("second", true);
 
         // red or blue footer
-        iter = 0;
-        denseZoomG.selectChildren(".footer")
-            .data((d) => [d])
-            .join("rect")
-            .attr("x", (d) => iter++ * barWidth + barChartOffset + zoomOffset)
-            .attr("y", this.denseZoomChartSize.height - chartHeightOffset - chartSpaceAbove
-            )
-            .attr("width", barWidth)
-            .attr("height", 4)
-            .classed("republican", (d) => this.isParty("R", d))
-            .classed("democrat", (d) => this.isParty("D", d));
+        // iter = 0;
+        // denseZoomG.selectChildren(".footer")
+        //     .data((d) => [d])
+        //     .join("rect")
+        //
+        //     .attr("x", (d) => iter++ * barWidth + barChartOffset + zoomOffset)
+        //     .attr("y", this.denseZoomChartSize.height - chartHeightOffset - chartSpaceAbove
+        //     )
+        //     .attr("width", barWidth)
+        //     .attr("height", 4)
+        //     .classed("republican", (d) => this.isParty("R", d))
+        //     .classed("democrat", (d) => this.isParty("D", d));
     }
 
     makeDenseChart() {
