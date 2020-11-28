@@ -199,6 +199,10 @@ class SocialStats {
         const zoomPosScale = d3.scaleLinear().domain([this.chartStart, chartWdith]).range([0, this.denseZoomChartSize.width]);
         const zoomOffset = -zoomPosScale(offset) * zoom;
 
+        this.zoomOffset = offset;
+        this.zoomchartWdith = chartWdith;
+        this.zoomZoom = zoom;
+
         console.log('offset:' + offset + '  zoomOffset' + JSON.stringify(zoomOffset));
         let feature = this.sortInfo.feature;
         const max = this.getMax(feature);
@@ -208,7 +212,12 @@ class SocialStats {
             .scaleSqrt()
             .domain([0, max])
             .range([chartHeight, chartSpaceAbove]);
-
+        if (this.scale !== 'sqrt') {
+            yScale = d3
+                .scaleLinear()
+                .domain([0, max])
+                .range([chartHeight, chartSpaceAbove]);
+        }
 
         let denseZoomG = this.denseZoomSVG
             .selectChildren(".bars")
@@ -476,8 +485,6 @@ class SocialStats {
     makeAggCards() {
         this.cardContainer = this.rootDiv.append("div").classed("simpleFlex", true);
 
-        const avgData = this.getAverageDataByParty();
-
         //build control panel
         let defaultSortToggle = 1; // 1 is fb
         let defaultScaleToggle = 5;
@@ -539,7 +546,7 @@ class SocialStats {
                 if (d3.select("#" + id).property("checked")) {
                     d.lambda()
                 } else {
-                    let defaultToggle = d.style === "sort" ? defaultSortToggle : defaultScaleToggle;
+                    let defaultToggle = d.type === 'sort' ? defaultSortToggle : defaultScaleToggle;
                     d3.select("#" + toggles[defaultToggle].name.replace(/\s/g, '') + "toggle").property("checked", true);
                     toggles[defaultToggle].lambda();
                 }
@@ -547,6 +554,7 @@ class SocialStats {
                 //redraw charts
                 this.setSort(this.curSortStyle, this.sortInfo.feature);
                 this.drawDenseChart();
+                this.drawZoomChart(this.zoomOffset, this.zoomchartWdith, this.zoomZoom);
             });
 
         //set default toggle to true defaultScaleToggle
@@ -561,6 +569,7 @@ class SocialStats {
             .text((d) => d.name);
 
         //build the selectable cards.
+        const avgData = this.getAverageDataByParty();
         this.cards = this.cardContainer
             .append("div")
             .classed("cardContainer", true)
@@ -571,6 +580,7 @@ class SocialStats {
             .on("click", (click, d) => {
                 this.setSort(this.curSortStyle, d.feature); // TODO: this.setSort(style, feature)
                 this.drawDenseChart();
+                this.drawZoomChart(this.zoomOffset, this.zoomchartWdith, this.zoomZoom);
             });
 
         //append title to cards
@@ -646,7 +656,7 @@ class SocialStats {
                 fbReactions[poli] += parseInt(row["Average Post Favorites/Reactions"]);
                 fbAvgShares[poli] += parseInt(row["Average Post Retweets/Shares"]);
                 fbTotalPosts[poli] += parseInt(row["Total Posts"]);
-                fbAvgRetweet[poli] += parseInt(row["Average Post Retweets/Shares"]);
+                fbAvgRetweet[poli] += parseInt(row["Max Total Followers"]);
             } else {
                 let poli = 0;
                 if (row.Party.includes("D")) {
@@ -656,7 +666,7 @@ class SocialStats {
                 twReactions[poli] += parseInt(row["Average Post Favorites/Reactions"]);
                 twAvgShares[poli] += parseInt(row["Average Post Retweets/Shares"]);
                 twTotalPosts[poli] += parseInt(row["Total Posts"]);
-                twAvgRetweet[poli] += parseInt(row["Average Post Retweets/Shares"]);
+                twAvgRetweet[poli] += parseInt(row["Max Total Followers"]);
             }
         }
 
@@ -678,14 +688,14 @@ class SocialStats {
             "Average Post Favorites/Reactions",
             "Total Posts",
             "Average Post Retweets/Shares",
-            "Average Post Retweets/Shares",
+            "Max Total Followers",
         ];
         const aggFeatureValues = [
             "Number of Active Accounts",
             "Average Post Favorites/Reactions",
             "Total Posts",
             "Average Post Retweets/Shares",
-            "Average Post Retweets/Shares",
+            "Max Total Followers",
         ];
         let toRet = [];
         for (let i = 0; i < aggDataTitles.length; i++) {
