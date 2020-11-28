@@ -13,16 +13,43 @@ class SocialStats {
       "Average Post Retweets/Shares": { comparator: (a, b) => a - b },
     };
 
+    const that = this;
     this.sortStyles = {
-      fb: (feature) => {
-        const comp = this.features[feature].comparator;
-        return (a, b) => comp(a["fb"]?.[feature] | 0, b["fb"]?.[feature] | 0);
+      fb: {
+        getComparator(feature) {
+          const comp = that.features[feature].comparator;
+          return (a, b) =>
+            comp(this.getFeature(a, feature), this.getFeature(b, feature));
+        },
+        getFeature(el, feature) {
+          return el["fb"]?.[feature] | 0;
+        },
       },
-      tw: (feature) => {
-        const comp = this.features[feature].comparator;
-        return (a, b) => comp(a["tw"]?.[feature] | 0, b["tw"]?.[feature] | 0);
+      tw: {
+        getComparator(feature) {
+          const comp = that.features[feature].comparator;
+          return (a, b) =>
+            comp(this.getFeature(a, feature), this.getFeature(b, feature));
+        },
+        getFeature(el, feature) {
+          return el["tw"]?.[feature] | 0;
+        },
       },
-      // TODO: sum, max, party
+      max: {
+        getComparator(feature) {
+          const comp = that.features[feature].comparator;
+          return (a, b) =>
+            comp(this.getFeature(a, feature), this.getFeature(b, feature));
+        },
+        getFeature(el, feature) {
+          const vals = [el["tw"]?.[feature] | 0, el["fb"]?.[feature] | 0];
+          const comp = that.features[feature].comparator;
+          return vals.reduce((max, el) => {
+            return comp(el, max) > 0 ? el : max;
+          });
+        },
+      },
+      // TODO: sum, party
     };
 
     this.setSort("fb", "Total Posts");
@@ -41,11 +68,22 @@ class SocialStats {
     this.sortInfo = {
       style,
       feature,
-      comparator: this.sortStyles[style](feature),
+      comparator: this.sortStyles[style].getComparator(feature),
     };
   }
 
-  findMaximums() {}
+  findMaximums() {
+    const maximums = {};
+    for (const [feature, info] of Object.entries(this.features)) {
+      const sortStyle = this.sortStyles["max"];
+      const comp = sortStyle.getComparator(feature);
+      const maxElement = this.SenatorData.reduce((max, el) => {
+        return comp(el, max) > 0 ? el : max;
+      });
+      maximums[feature] = sortStyle.getFeature(maxElement, feature);
+    }
+    return maximums;
+  }
 
   mergeDataToSenator() {
     let senatorDict = new Map();
@@ -171,13 +209,7 @@ class SocialStats {
 
     //get the max element from the selected feature.
     let feature = this.sortInfo.feature;
-    let max = d3.max(
-      Array.from(this.SenatorData, (x) => {
-        let int1 = x.fb !== undefined ? x.fb[feature] : 0;
-        let int2 = x.tw !== undefined ? x.tw[feature] : 0;
-        return d3.max([parseInt(int1), parseInt(int2)]);
-      })
-    );
+    let max = this.maximums[feature];
 
     //sort
     this.SenatorData.sort(this.sortInfo.comparator);
