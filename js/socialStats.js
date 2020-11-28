@@ -11,108 +11,112 @@ class SocialStats {
             "Total Posts": {comparator: (a, b) => a - b},
             "Average Post Favorites/Reactions": {comparator: (a, b) => a - b},
             "Average Post Retweets/Shares": {comparator: (a, b) => a - b},
-      Party: {
-        comparator: (a, b) => a.toString().localeCompare(b.toString()),
-        secondary: true,
-      },
+            Party: {
+                comparator: (a, b) => a.toString().localeCompare(b.toString()),
+                secondary: true,
+            },
         };
 
-    const that = this;
+        const that = this;
         this.sortStyles = {
-      fb: {
-        getComparator(feature) {
-          const comp = that.features[feature].comparator;
-          return (a, b) =>
-            comp(this.getFeature(a, feature), this.getFeature(b, feature));
-        },
-        getFeature(el, feature) {
-          return el["fb"]?.[feature] || 0;
-        },
-      },
-      tw: {
-        getComparator(feature) {
-          const comp = that.features[feature].comparator;
-          return (a, b) =>
-            comp(this.getFeature(a, feature), this.getFeature(b, feature));
-        },
-        getFeature(el, feature) {
-          return el["tw"]?.[feature] || 0;
-        },
-      },
-      max: {
-        getComparator(feature) {
-          const comp = that.features[feature].comparator;
-          return (a, b) =>
-            comp(this.getFeature(a, feature), this.getFeature(b, feature));
+            fb: {
+                getComparator(feature) {
+                    const comp = that.features[feature].comparator;
+                    return (a, b) =>
+                        comp(this.getFeature(a, feature), this.getFeature(b, feature));
+                },
+                getFeature(el, feature) {
+                    return el["fb"]?.[feature] || 0;
+                },
             },
-        getFeature(el, feature) {
-          const vals = [el["tw"]?.[feature] || 0, el["fb"]?.[feature] || 0];
-          const comp = that.features[feature].comparator;
-          return vals.reduce((max, el) => {
-            return comp(el, max) > 0 ? el : max;
-          });
+            tw: {
+                getComparator(feature) {
+                    const comp = that.features[feature].comparator;
+                    return (a, b) =>
+                        comp(this.getFeature(a, feature), this.getFeature(b, feature));
+                },
+                getFeature(el, feature) {
+                    return el["tw"]?.[feature] || 0;
+                },
             },
-      },
-      party: {
-        secondary: true,
-        getComparator(feature) {
-          const { style } = that.sortInfo;
-          const sortStyle = that.sortStyles[style];
-          const comp = that.features[feature].comparator;
-          return (a, b) => {
-            const partyComp = this.getFeature(a)
-              .toString()
-              .localeCompare(this.getFeature(b).toString());
-            if (partyComp == 0) {
-              return comp(
-                sortStyle.getFeature(a, feature),
-                sortStyle.getFeature(b, feature)
-              );
-            }
-            return partyComp;
-          };
-        },
-        getFeature(el, feature) {
-          return el["fb"]?.["Party"] || el["tw"]?.["Party"];
-        },
-      },
-      // TODO: sum, party
+            max: {
+                getComparator(feature) {
+                    const comp = that.features[feature].comparator;
+                    return (a, b) =>
+                        comp(this.getFeature(a, feature), this.getFeature(b, feature));
+                },
+                getFeature(el, feature) {
+                    const vals = [el["tw"]?.[feature] || 0, el["fb"]?.[feature] || 0];
+                    const comp = that.features[feature].comparator;
+                    return vals.reduce((max, el) => {
+                        return comp(el, max) > 0 ? el : max;
+                    });
+                },
+            },
+            party: {
+                secondary: true,
+                getComparator(feature) {
+                    const {style} = that.sortInfo;
+                    const sortStyle = that.sortStyles[style];
+                    const comp = that.features[feature].comparator;
+                    return (a, b) => {
+                        const partyComp = this.getFeature(a)
+                            .toString()
+                            .localeCompare(this.getFeature(b).toString());
+                        if (partyComp == 0) {
+                            return comp(
+                                sortStyle.getFeature(a, feature),
+                                sortStyle.getFeature(b, feature)
+                            );
+                        }
+                        return partyComp;
+                    };
+                },
+                getFeature(el, feature) {
+                    return el["fb"]?.["Party"] || el["tw"]?.["Party"];
+                },
+            },
+            // TODO: sum
         };
 
-        this.setSort("fb", "Total Posts");
 
-    this.findMaximums();
+        this.scale = "sqrt";
+        this.curSortStyle = "max";
+        this.setSort(this.curSortStyle, "Total Posts");
+
+
+        this.findMaximums();
 
         this.makeAggCards();
 
         this.makeDenseChart();
 
-    this.makeZoomChart();
+        this.makeZoomChart();
     }
 
     setSort(style, feature) {
-    const [newFeature, newStyle] = this.sortStyles[style].secondary
-      ? [this.sortInfo.feature, this.sortInfo.style] // Don't change on secondary feature
-      : [feature, style];
+        const [newFeature, newStyle] = this.sortStyles[style].secondary
+            ? [this.sortInfo.feature, this.sortInfo.style] // Don't change on secondary feature
+            : [feature, style];
 
         this.sortInfo = {
-      style: newStyle,
-      feature: newFeature,
-      comparator: this.sortStyles[style].getComparator(newFeature),
+            style: newStyle,
+            feature: newFeature,
+            comparator: this.sortStyles[style].getComparator(newFeature),
         };
     }
 
-  findMaximums() {
-    this.maximums = {};
-    for (const [feature, info] of Object.entries(this.features)) {
-      const sortStyle = this.sortStyles["max"];
-      const comp = sortStyle.getComparator(feature);
-      const maxElement = this.SenatorData.reduce((max, el) => {
-        return comp(el, max) > 0 ? el : max;
-      });
-      this.maximums[feature] = +sortStyle.getFeature(maxElement, feature);
+    findMaximums() {
+        this.maximums = {};
+        for (const [feature, info] of Object.entries(this.features)) {
+            const sortStyle = this.sortStyles["max"];
+            const comp = sortStyle.getComparator(feature);
+            const maxElement = this.SenatorData.reduce((max, el) => {
+                return comp(el, max) > 0 ? el : max;
+            });
+            this.maximums[feature] = +sortStyle.getFeature(maxElement, feature);
+        }
     }
-  }
 
     mergeDataToSenator() {
         let senatorDict = new Map();
@@ -152,29 +156,29 @@ class SocialStats {
         this.zoomRoot = d3.select(`.denseChartZoom`);
         this.denseZoomChartSize = this.zoomRoot.node().getBoundingClientRect();
 
-    //create svg
-    this.denseZoomSVG = this.zoomRoot
-      .append("svg")
-      .attr("width", this.denseZoomChartSize.width)
-      .attr("height", this.denseZoomChartSize.height);
+        //create svg
+        this.denseZoomSVG = this.zoomRoot
+            .append("svg")
+            .attr("width", this.denseZoomChartSize.width)
+            .attr("height", this.denseZoomChartSize.height);
         // .classed('bg', true); //uncomment for blue bg
 
-    //make this.denseG
-    this.denseGZoom = this.denseZoomSVG
-      .selectChildren(".bars")
-      .data(this.SenatorData)
-      .join("g")
-      .classed("bars", true);
+        //make this.denseG
+        this.denseGZoom = this.denseZoomSVG
+            .selectChildren(".bars")
+            .data(this.SenatorData)
+            .join("g")
+            .classed("bars", true);
 
-    //append x-axis
-    this.denseZoomSVG
-      .append("line")
-      .attr("x1", 0)
-      .attr("x2", this.denseZoomChartSize.width)
-      .attr("y1", this.denseZoomChartSize.height - 20) // -charSpaceAbove -chartHeightOffset
-      .attr("y2", this.denseZoomChartSize.height - 20)
-      .attr("stroke-width", 1)
-      .attr("stroke", "black");
+        //append x-axis
+        this.denseZoomSVG
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", this.denseZoomChartSize.width)
+            .attr("y1", this.denseZoomChartSize.height - 20) // -charSpaceAbove -chartHeightOffset
+            .attr("y2", this.denseZoomChartSize.height - 20)
+            .attr("stroke-width", 1)
+            .attr("stroke", "black");
 
         this.denseZoomSVG.append('line')
             .attr('x1', 0)
@@ -184,18 +188,18 @@ class SocialStats {
             .attr('stroke-width', 1)
             .attr('stroke', 'black');
 
-        this.drawZoomChart(45, this.denseChartSize.width-10,8)
+        this.drawZoomChart(45, this.denseChartSize.width - 10, 8)
     }
 
-    drawZoomChart(offset,chartWdith,  zoom) {
+    drawZoomChart(offset, chartWdith, zoom) {
         const chartHeightOffset = 10;
         const chartSpaceAbove = 10;
         const chartHeight = this.denseZoomChartSize.height - chartHeightOffset - chartSpaceAbove;
         const barChartOffset = 1;
         const zoomPosScale = d3.scaleLinear().domain([this.chartStart, chartWdith]).range([0, this.denseZoomChartSize.width]);
-        const zoomOffset = -zoomPosScale(offset)*zoom;
+        const zoomOffset = -zoomPosScale(offset) * zoom;
 
-        console.log('offset:' +offset+'  zoomOffset' + JSON.stringify(zoomOffset));
+        console.log('offset:' + offset + '  zoomOffset' + JSON.stringify(zoomOffset));
         let feature = this.sortInfo.feature;
         const max = this.getMax(feature);
 
@@ -258,7 +262,7 @@ class SocialStats {
             .attr("height", 4)
             .classed("republican", (d) => this.isParty("R", d))
             .classed("democrat", (d) => this.isParty("D", d));
-  }
+    }
 
     makeDenseChart() {
         this.denseChartContainer = this.rootDiv
@@ -307,7 +311,7 @@ class SocialStats {
             .attr("stroke-width", 1)
             .attr("stroke", "black");
 
-        const chartWidth =this.denseChartSize.width-15;
+        const chartWidth = this.denseChartSize.width - 15;
 
         const brushed = ({selection}) => {
             let left = selection[0];
@@ -315,23 +319,23 @@ class SocialStats {
             // this.chartStart
             //this.denseChartSize.width - 10
 
-            let zoom = chartWidth/(right-left);
+            let zoom = chartWidth / (right - left);
 
             // console.log('leftMost:' +JSON.stringify(-(leftMost)));
             this.drawZoomChart(left, chartWidth, zoom)
         };
 
 
-    this.denseSVG.call(
-      d3
-        .brushX()
-        .extent([
-          [this.chartStart, 0],
-          [this.denseChartSize.width - 10, this.denseChartSize.height],
-        ])
-        .on("brush", this.brushed)
-    );
-            //make brush
+        this.denseSVG.call(
+            d3
+                .brushX()
+                .extent([
+                    [this.chartStart, 0],
+                    [this.denseChartSize.width - 10, this.denseChartSize.height],
+                ])
+                .on("brush", this.brushed)
+        );
+        //make brush
         this.denseSVG.call(d3.brushX().extent([[this.chartStart, 0], [this.denseChartSize.width - 10, this.denseChartSize.height]]).on("brush", brushed));
 
 
@@ -358,7 +362,7 @@ class SocialStats {
 
         //get the max element from the selected feature.
         let feature = this.sortInfo.feature;
-    let max = this.maximums[feature];
+        let max = this.maximums[feature];
 
         //sort
         this.SenatorData.sort(this.sortInfo.comparator);
@@ -369,17 +373,25 @@ class SocialStats {
             tickAmount = 3;
         }
 
-    const yBuffer = +max * 0.1;
+        const yBuffer = +max * 0.1;
         let yScale = d3
             .scaleSqrt()
-      .domain([0, max + yBuffer])
+            .domain([0, max + yBuffer])
             .range([chartHeight, chartSpaceAbove]);
 
-    let yAxis = d3
-      .axisLeft()
-      .scale(yScale)
-      .tickFormat(d3.format("d"))
-      .ticks(tickAmount);
+        if (this.scale !== 'sqrt') {
+            yScale = d3
+                .scaleLinear()
+                .domain([0, max + yBuffer])
+                .range([chartHeight, chartSpaceAbove]);
+        }
+
+
+        let yAxis = d3
+            .axisLeft()
+            .scale(yScale)
+            .tickFormat(d3.format("d"))
+            .ticks(tickAmount);
 
         //Append group and insert axis
         this.denseSVG.selectAll(".axis").remove();
@@ -405,40 +417,40 @@ class SocialStats {
             .selectChildren(".first")
             .data((d) => [d])
             .join("rect")
-      .classed("first", true)
-      .transition(d3.transition().duration(500))
+            .classed("first", true)
+            .transition(d3.transition().duration(500))
             .attr("width", barWidth)
             .attr(
                 "height",
                 (d) => chartHeight - yScale(this.getFeature(d, true, feature)[0])
             )
-      .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
-      .attr("y", (d) => yScale(this.getFeature(d, true, feature)[0]))
-      .style("fill", (d) =>
-        this.getFeature(d, true, feature)[1] == "facebook"
-          ? "#3b5998"
-          : "#00acee"
-      );
+            .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
+            .attr("y", (d) => yScale(this.getFeature(d, true, feature)[0]))
+            .style("fill", (d) =>
+                this.getFeature(d, true, feature)[1] == "facebook"
+                    ? "#3b5998"
+                    : "#00acee"
+            );
         //second
         iter = 0;
         this.denseG
             .selectChildren(".second")
             .data((d) => [d])
             .join("rect")
-      .classed("second", true)
-      .transition(d3.transition().duration(500))
+            .classed("second", true)
+            .transition(d3.transition().duration(500))
             .attr("width", barWidth)
             .attr(
                 "height",
                 (d) => chartHeight - yScale(this.getFeature(d, false, feature)[0])
             )
-      .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
-      .attr("y", (d) => yScale(this.getFeature(d, false, feature)[0]))
-      .style("fill", (d) =>
-        this.getFeature(d, false, feature)[1] == "facebook"
-          ? "#3b5998"
-          : "#00acee"
-      );
+            .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
+            .attr("y", (d) => yScale(this.getFeature(d, false, feature)[0]))
+            .style("fill", (d) =>
+                this.getFeature(d, false, feature)[1] == "facebook"
+                    ? "#3b5998"
+                    : "#00acee"
+            );
 
         // red or blue footer
         iter = 0;
@@ -446,7 +458,7 @@ class SocialStats {
             .selectChildren(".footer")
             .data((d) => [d])
             .join("rect")
-      .classed("footer", true)
+            .classed("footer", true)
             .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
             .attr(
                 "y",
@@ -454,11 +466,12 @@ class SocialStats {
             )
             .attr("width", barWidth)
             .attr("height", 4)
-      .transition(d3.transition().duration(500))
-      .style("fill", (d) => (this.isParty("R", d) ? "#de0100" : "#1405bd"));
+            .transition(d3.transition().duration(500))
+            .style("fill", (d) => (this.isParty("R", d) ? "#de0100" : "#1405bd"));
     }
 
-  brushed(selection) {}
+    brushed(selection) {
+    }
 
     makeAggCards() {
         this.cardContainer = this.rootDiv.append("div").classed("simpleFlex", true);
@@ -466,7 +479,47 @@ class SocialStats {
         const avgData = this.getAverageDataByParty();
 
         //build control panel
-        let toggles = ["Party", "Facebook", "Twitter", "Linear Scale"];
+        let defaultSortToggle = 1; // 1 is fb
+        let defaultScaleToggle = 5;
+        let toggles = [
+            {
+                name: "Party",
+                lambda: () => this.curSortStyle = "party",
+                type: 'sort'
+            },
+            {
+                name: "Facebook",
+                lambda: () => this.curSortStyle = "fb",
+                type: 'sort'
+            },
+            {
+                name: "Twitter",
+                lambda: () => this.curSortStyle = "tw",
+                type: 'sort'
+            },
+            {
+                name: "max",
+                lambda: () => this.curSortStyle = "max",
+                type: 'sort'
+            },
+            {
+                name: "Linear Scale",
+                lambda: () => this.scale = 'linear',
+                type: 'scale'
+            },
+            {
+                name: "Square Root Scale",
+                lambda: () => this.scale = 'sqrt',
+                type: 'scale'
+            }];
+        const turnOffToggles = (type, name) => {
+            for (let i = 0; i < toggles.length; i++) {
+                if (toggles[i].type === type && toggles[i].name.replace(/\s/g, '') !== name) {
+                    d3.select("#" + toggles[i].name.replace(/\s/g, '') + "toggle").property("checked", false)
+                }
+            }
+        };
+
         const inputs = this.cardContainer
             .append("div")
             .classed("controlPanel", true)
@@ -476,14 +529,36 @@ class SocialStats {
             .classed("toggleParent", true);
 
         //build inputs
-        inputs.append("input").attr("type", "checkbox").classed("toggle", true);
+        inputs.selectChildren('*').data(d => [d]).join("input")
+            .attr("type", "checkbox")
+            .classed("toggle", true)
+            .attr('id', d => d.name.replace(/\s/g, '') + "toggle")
+            .on('change', (event, d) => {
+                turnOffToggles(d.type, d.name.replace(/\s/g, ''));
+                let id = d.name.replace(/\s/g, '') + "toggle";
+                if (d3.select("#" + id).property("checked")) {
+                    d.lambda()
+                } else {
+                    let defaultToggle = d.style === "sort" ? defaultSortToggle : defaultScaleToggle;
+                    d3.select("#" + toggles[defaultToggle].name.replace(/\s/g, '') + "toggle").property("checked", true);
+                    toggles[defaultToggle].lambda();
+                }
+
+                //redraw charts
+                this.setSort(this.curSortStyle, this.sortInfo.feature);
+                this.drawDenseChart();
+            });
+
+        //set default toggle to true defaultScaleToggle
+        d3.select("#" + toggles[defaultSortToggle].name.replace(/\s/g, '') + "toggle").property("checked", true);
+        d3.select("#" + toggles[defaultScaleToggle].name.replace(/\s/g, '') + "toggle").property("checked", true);
 
         //build inputs titles
         inputs
             .selectChildren("h5")
             .data((d) => [d])
             .join("h5")
-            .text((d) => d);
+            .text((d) => d.name);
 
         //build the selectable cards.
         this.cards = this.cardContainer
@@ -494,7 +569,7 @@ class SocialStats {
             .join("div")
             .classed("aggCard", true)
             .on("click", (click, d) => {
-        this.setSort("fb", d.feature); // TODO: this.setSort(style, feature)
+                this.setSort(this.curSortStyle, d.feature); // TODO: this.setSort(style, feature)
                 this.drawDenseChart();
             });
 

@@ -2,7 +2,7 @@ loadData("/data/termsParty.csv").then((data) => {
   console.log(data);
 
   const mountPoint = "partyTopTerms";
-  // const partyTopTerms = new PartyTopTerms(mountPoint, data);
+  const partyTopTerms = new PartyTopTerms(mountPoint, data);
 });
 
 loadData("/data/termsEngagement.csv").then((data) => {

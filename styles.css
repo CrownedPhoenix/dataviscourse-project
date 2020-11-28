@@ -215,11 +215,18 @@ tr:nth-child(even) {
 }
 
 .controlPanel {
-    background-color: red;
+    background-color: #dce6f5;
     width: 300px;
     flex-direction: column;
     display: flex;
     justify-content: start;
+
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    border-top: 0;
+    border-left: 0;
+    border-bottom: 0;
 }
 .simpleFlex {
     display: flex;
@@ -263,7 +270,7 @@ input[type="checkbox"]:focus {
 }
 
 .toggle:checked {
-    border-color: #654FEC;
+    border-color: #3b5998;
 }
 
 .toggle:checked:after {
