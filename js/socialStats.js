@@ -332,15 +332,6 @@ class SocialStats {
       this.drawZoomChart(left, chartWidth, zoom);
     };
 
-    this.denseSVG.call(
-      d3
-        .brushX()
-        .extent([
-          [this.chartStart, 0],
-          [this.denseChartSize.width - 10, this.denseChartSize.height],
-        ])
-        .on("brush", this.brushed)
-    );
     //make brush
     this.denseSVG.call(
       d3
