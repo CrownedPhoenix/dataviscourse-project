@@ -11,6 +11,10 @@ class SocialStats {
       "Total Posts": { comparator: (a, b) => a - b },
       "Average Post Favorites/Reactions": { comparator: (a, b) => a - b },
       "Average Post Retweets/Shares": { comparator: (a, b) => a - b },
+      Party: {
+        comparator: (a, b) => a.toString().localeCompare(b.toString()),
+        secondary: true,
+      },
     };
 
     const that = this;
@@ -22,7 +26,7 @@ class SocialStats {
             comp(this.getFeature(a, feature), this.getFeature(b, feature));
         },
         getFeature(el, feature) {
-          return el["fb"]?.[feature] | 0;
+          return el["fb"]?.[feature] || 0;
         },
       },
       tw: {
@@ -32,7 +36,7 @@ class SocialStats {
             comp(this.getFeature(a, feature), this.getFeature(b, feature));
         },
         getFeature(el, feature) {
-          return el["tw"]?.[feature] | 0;
+          return el["tw"]?.[feature] || 0;
         },
       },
       max: {
@@ -42,11 +46,34 @@ class SocialStats {
             comp(this.getFeature(a, feature), this.getFeature(b, feature));
         },
         getFeature(el, feature) {
-          const vals = [el["tw"]?.[feature] | 0, el["fb"]?.[feature] | 0];
+          const vals = [el["tw"]?.[feature] || 0, el["fb"]?.[feature] || 0];
           const comp = that.features[feature].comparator;
           return vals.reduce((max, el) => {
             return comp(el, max) > 0 ? el : max;
           });
+        },
+      },
+      party: {
+        secondary: true,
+        getComparator(feature) {
+          const { style } = that.sortInfo;
+          const sortStyle = that.sortStyles[style];
+          const comp = that.features[feature].comparator;
+          return (a, b) => {
+            const partyComp = this.getFeature(a)
+              .toString()
+              .localeCompare(this.getFeature(b).toString());
+            if (partyComp == 0) {
+              return comp(
+                sortStyle.getFeature(a, feature),
+                sortStyle.getFeature(b, feature)
+              );
+            }
+            return partyComp;
+          };
+        },
+        getFeature(el, feature) {
+          return el["fb"]?.["Party"] || el["tw"]?.["Party"];
         },
       },
       // TODO: sum, party
@@ -64,10 +91,14 @@ class SocialStats {
   }
 
   setSort(style, feature) {
+    const [newFeature, newStyle] = this.sortStyles[style].secondary
+      ? [this.sortInfo.feature, this.sortInfo.style] // Don't change on secondary feature
+      : [feature, style];
+
     this.sortInfo = {
-      style,
-      feature,
-      comparator: this.sortStyles[style].getComparator(feature),
+      style: newStyle,
+      feature: newFeature,
+      comparator: this.sortStyles[style].getComparator(newFeature),
     };
   }
 
@@ -338,7 +369,7 @@ class SocialStats {
       .join("div")
       .classed("aggCard", true)
       .on("click", (click, d) => {
-        this.setSort("tw", d.feature);
+        this.setSort("party", undefined); // TODO: this.setSort(style, feature)
         this.drawDenseChart();
       });
 
