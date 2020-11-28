@@ -110,7 +110,7 @@ class SocialStats {
       const maxElement = this.SenatorData.reduce((max, el) => {
         return comp(el, max) > 0 ? el : max;
       });
-      this.maximums[feature] = sortStyle.getFeature(maxElement, feature);
+      this.maximums[feature] = +sortStyle.getFeature(maxElement, feature);
     }
   }
 
@@ -259,12 +259,17 @@ class SocialStats {
       tickAmount = 3;
     }
 
+    const yBuffer = +max * 0.1;
     let yScale = d3
       .scaleSqrt()
-      .domain([0, max])
+      .domain([0, max + yBuffer])
       .range([chartHeight, chartSpaceAbove]);
 
-    let yAxis = d3.axisLeft().scale(yScale).tickFormat(d3.format("d"));
+    let yAxis = d3
+      .axisLeft()
+      .scale(yScale)
+      .tickFormat(d3.format("d"))
+      .ticks(tickAmount);
 
     //Append group and insert axis
     this.denseSVG.selectAll(".axis").remove();
@@ -290,31 +295,40 @@ class SocialStats {
       .selectChildren(".first")
       .data((d) => [d])
       .join("rect")
-      .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
-      .attr("y", (d) => yScale(this.getFeature(d, true, feature)[0]))
+      .classed("first", true)
+      .transition(d3.transition().duration(500))
       .attr("width", barWidth)
       .attr(
         "height",
         (d) => chartHeight - yScale(this.getFeature(d, true, feature)[0])
       )
-      .attr("class", (d) => this.getFeature(d, true, feature)[1])
-      .classed("first", true);
-
+      .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
+      .attr("y", (d) => yScale(this.getFeature(d, true, feature)[0]))
+      .style("fill", (d) =>
+        this.getFeature(d, true, feature)[1] == "facebook"
+          ? "#3b5998"
+          : "#00acee"
+      );
     //second
     iter = 0;
     this.denseG
       .selectChildren(".second")
       .data((d) => [d])
       .join("rect")
-      .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
-      .attr("y", (d) => yScale(this.getFeature(d, false, feature)[0]))
+      .classed("second", true)
+      .transition(d3.transition().duration(500))
       .attr("width", barWidth)
       .attr(
         "height",
         (d) => chartHeight - yScale(this.getFeature(d, false, feature)[0])
       )
-      .attr("class", (d) => this.getFeature(d, false, feature)[1])
-      .classed("second", true);
+      .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
+      .attr("y", (d) => yScale(this.getFeature(d, false, feature)[0]))
+      .style("fill", (d) =>
+        this.getFeature(d, false, feature)[1] == "facebook"
+          ? "#3b5998"
+          : "#00acee"
+      );
 
     // red or blue footer
     iter = 0;
@@ -322,6 +336,7 @@ class SocialStats {
       .selectChildren(".footer")
       .data((d) => [d])
       .join("rect")
+      .classed("footer", true)
       .attr("x", (d) => iter++ * barWidth + this.chartStart + barChartOffset)
       .attr(
         "y",
@@ -329,8 +344,8 @@ class SocialStats {
       )
       .attr("width", barWidth)
       .attr("height", 4)
-      .classed("republican", (d) => this.isParty("R", d))
-      .classed("democrat", (d) => this.isParty("D", d));
+      .transition(d3.transition().duration(500))
+      .style("fill", (d) => (this.isParty("R", d) ? "#de0100" : "#1405bd"));
   }
 
   brushed(selection) {}
@@ -369,7 +384,7 @@ class SocialStats {
       .join("div")
       .classed("aggCard", true)
       .on("click", (click, d) => {
-        this.setSort("party", undefined); // TODO: this.setSort(style, feature)
+        this.setSort("fb", d.feature); // TODO: this.setSort(style, feature)
         this.drawDenseChart();
       });
 
