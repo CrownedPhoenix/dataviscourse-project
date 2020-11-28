@@ -60,9 +60,8 @@ class SocialStats {
 
     this.makeDenseChart();
 
-    this.makeZoomChart()
+    this.makeZoomChart();
   }
-
 
   setSort(style, feature) {
     this.sortInfo = {
@@ -119,32 +118,34 @@ class SocialStats {
     return senatorArr;
   }
 
-    makeZoomChart(){
-        this.zoomRoot = d3.select(`.denseChartZoom`);
-        this.denseZoomChartSize = this.zoomRoot.node().getBoundingClientRect();
+  makeZoomChart() {
+    this.zoomRoot = d3.select(`.denseChartZoom`);
+    this.denseZoomChartSize = this.zoomRoot.node().getBoundingClientRect();
 
-        //create svg
-        this.denseZoomSVG = this.zoomRoot.append('svg')
-            .attr('width', this.denseZoomChartSize.width)
-            .attr('height', this.denseZoomChartSize.height);
-            // .classed('bg', true); //uncomment for blue bg
+    //create svg
+    this.denseZoomSVG = this.zoomRoot
+      .append("svg")
+      .attr("width", this.denseZoomChartSize.width)
+      .attr("height", this.denseZoomChartSize.height);
+    // .classed('bg', true); //uncomment for blue bg
 
-        //make this.denseG
-        this.denseGZoom = this.denseZoomSVG.selectChildren('.bars')
-            .data(this.SenatorData)
-            .join('g')
-            .classed('bars', true);
+    //make this.denseG
+    this.denseGZoom = this.denseZoomSVG
+      .selectChildren(".bars")
+      .data(this.SenatorData)
+      .join("g")
+      .classed("bars", true);
 
-        //append x-axis
-        this.denseZoomSVG.append('line')
-            .attr('x1', 0)
-            .attr('x2', this.denseZoomChartSize.width)
-            .attr('y1', this.denseZoomChartSize.height - 20) // -charSpaceAbove -chartHeightOffset
-            .attr('y2', this.denseZoomChartSize.height - 20)
-            .attr('stroke-width', 1)
-            .attr('stroke', 'black');
-
-    }
+    //append x-axis
+    this.denseZoomSVG
+      .append("line")
+      .attr("x1", 0)
+      .attr("x2", this.denseZoomChartSize.width)
+      .attr("y1", this.denseZoomChartSize.height - 20) // -charSpaceAbove -chartHeightOffset
+      .attr("y2", this.denseZoomChartSize.height - 20)
+      .attr("stroke-width", 1)
+      .attr("stroke", "black");
+  }
 
   makeDenseChart() {
     this.denseChartContainer = this.rootDiv
@@ -193,8 +194,16 @@ class SocialStats {
       .attr("stroke-width", 1)
       .attr("stroke", "black");
 
-        //make brush
-        this.denseSVG.call(d3.brushX().extent([[this.chartStart, 0],[this.denseChartSize.width - 10, this.denseChartSize.height]]).on("brush", this.brushed));
+    //make brush
+    this.denseSVG.call(
+      d3
+        .brushX()
+        .extent([
+          [this.chartStart, 0],
+          [this.denseChartSize.width - 10, this.denseChartSize.height],
+        ])
+        .on("brush", this.brushed)
+    );
 
     //'Number of Active Accounts'
     this.drawDenseChart();
@@ -294,8 +303,7 @@ class SocialStats {
       .classed("democrat", (d) => this.isParty("D", d));
   }
 
-    brushed(selection) {
-    }
+  brushed(selection) {}
 
   makeAggCards() {
     this.cardContainer = this.rootDiv.append("div").classed("simpleFlex", true);
