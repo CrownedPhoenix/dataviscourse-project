@@ -165,14 +165,9 @@
 }
 
 .denseChartContainer {
-<<<<<<< Updated upstream
     background-color: black;
     display: flex;
     height: 70vh;
-=======
-  background-color: black;
-  display: flex;
->>>>>>> Stashed changes
 }
 
 .denseChartToggle {
@@ -187,27 +182,12 @@
   height: 70%;
 }
 
-<<<<<<< Updated upstream
 /*should be square*/
 .denseChartZoom {
     background-color: #dce6f5;
     width: 35vw;
     height: 100%;
     border: black thin solid;
-=======
-.denseChartDataBreakdown {
-  background-color: orange;
-  width: 100%;
-  height: 30%;
-}
-
-/*should be square*/
-.denseChartZoom {
-  background-color: #dce6f5;
-  width: 35vw;
-  height: 35vw;
-  border: black thin solid;
->>>>>>> Stashed changes
 }
 .hovered{
     stroke: black;
