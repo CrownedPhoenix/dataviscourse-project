@@ -635,6 +635,7 @@ class SocialStats {
             .join("div")
             .classed("toggleParent", true);
 
+
         //build inputs
         inputScale
             .selectChildren("*")

@@ -85,6 +85,9 @@
 #partyTopTerms {
     margin: auto;
     width: 95vw;
+    height: 266px;
+    display: flex;
+    flex-direction: row;
 }
 
 .topTermsParent {
@@ -92,7 +95,6 @@
 }
 
 .nav {
-    height: 30px;
     width: 100%;
     background-color: #3B5998;
     display: flex;
