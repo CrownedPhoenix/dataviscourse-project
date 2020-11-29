@@ -188,7 +188,7 @@ class SocialStats {
             .attr('stroke-width', 1)
             .attr('stroke', 'black');
 
-        this.drawZoomChart(45, this.denseChartSize.width - 10, 8)
+        this.drawZoomChart(45, this.denseChartSize.width-10,8)
     }
 
     drawZoomChart(offset, chartWdith, zoom) {
@@ -203,7 +203,6 @@ class SocialStats {
         this.zoomchartWdith = chartWdith;
         this.zoomZoom = zoom;
 
-        console.log('offset:' + offset + '  zoomOffset' + JSON.stringify(zoomOffset));
         let feature = this.sortInfo.feature;
         const max = this.getMax(feature);
 
@@ -343,9 +342,9 @@ class SocialStats {
                     [this.chartStart, 0],
                     [this.denseChartSize.width - 10, this.denseChartSize.height],
                 ])
-                .on("brush", this.brushed)
+        .on("brush", this.brushed)
         );
-        //make brush
+            //make brush
         this.denseSVG.call(d3.brushX().extent([[this.chartStart, 0], [this.denseChartSize.width - 10, this.denseChartSize.height]]).on("brush", brushed));
 
 
