@@ -798,21 +798,21 @@ class SocialStats {
     if (this.containsFB(d) && this.containsTW(d)) {
       if (this.faceBookFeatureBigger(d, feature)) {
         if (largest) {
-          return [parseInt(d.fb[feature]), "facebook"];
+          return [parseInt(d.fb[feature] || 0), "facebook"];
         } else {
-          return [parseInt(d.tw[feature]), "twitter"];
+          return [parseInt(d.tw[feature] || 0), "twitter"];
         }
       }
       if (largest) {
-        return [parseInt(d.tw[feature]), "twitter"];
+        return [parseInt(d.tw[feature] || 0), "twitter"];
       } else {
-        return [parseInt(d.fb[feature]), "facebook"];
+        return [parseInt(d.fb[feature] || 0), "facebook"];
       }
     } else {
       if (this.containsFB(d)) {
-        return [parseInt(d.fb[feature]), "facebook"];
+        return [parseInt(d.fb[feature] || 0), "facebook"];
       } else {
-        return [parseInt(d.tw[feature]), "twitter"];
+        return [parseInt(d.tw[feature] || 0), "twitter"];
       }
     }
   }
