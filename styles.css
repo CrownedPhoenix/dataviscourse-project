@@ -163,6 +163,7 @@
 .denseChartContainer {
     background-color: black;
     display: flex;
+    height: 70vh;
 }
 
 .denseChartToggle {
@@ -177,20 +178,16 @@
     height: 70%;
 }
 
-.denseChartDataBreakdown {
-    background-color: orange;
-    width: 100%;
-    height: 30%;
-}
-
 /*should be square*/
 .denseChartZoom {
     background-color: #dce6f5;
     width: 35vw;
-    height: 35vw;
+    height: 100%;
     border: black thin solid;
 }
-
+.hovered{
+    stroke: black;
+}
 .bg {
     background-color: white;
 }
@@ -282,4 +279,29 @@ input[type="checkbox"]:focus {
     display: flex;
     flex-direction: row;
     padding:12px ;
+}
+
+.denseChartDataBreakdown {
+    background-color: #dce6f5;
+    width: 100%;
+    height: 30%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: auto;
+    padding-left: 8px;
+}
+
+.breakdownRow{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 25%;
+}
+.rowTitle{
+    width: initial;
+}
+.rowData{
+    width: initial;
 }
