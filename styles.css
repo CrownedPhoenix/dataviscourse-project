@@ -89,6 +89,9 @@
 #partyTopTerms {
   margin: auto;
   width: 95vw;
+  height: 266px;
+  display: flex;
+  flex-direction: row;
 }
 
 .topTermsParent {
@@ -100,6 +103,7 @@
   width: 100%;
   background-color: #3b5998;
   display: flex;
+  flex-direction: column;
 }
 
 .chartBlue {
@@ -130,22 +134,32 @@
   padding: 5px;
 }
 
+#cardDataTable {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: -webkit-fill-available;
+}
+
 .cardContainer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
-  width: 95vw;
+}
 
-  flex-wrap: wrap;
+.selectedCard {
+  background-color: #b9b9b9 !important;
 }
 
 .aggCard {
   background-color: white; /*#dce6f5*/
   padding: 5px;
-  width: 300px;
-  height: 200px;
+  width: 341px;
+  height: 48px;
 
-  margin: 12px;
+  margin-left: 12px;
 
   border-style: solid;
   border-color: black;
@@ -165,9 +179,9 @@
 }
 
 .denseChartContainer {
-    background-color: black;
-    display: flex;
-    height: 70vh;
+  background-color: black;
+  display: flex;
+  height: 70vh;
 }
 
 .denseChartToggle {
@@ -184,13 +198,27 @@
 
 /*should be square*/
 .denseChartZoom {
-    background-color: #dce6f5;
-    width: 35vw;
-    height: 100%;
-    border: black thin solid;
+  background-color: #dce6f5;
+  width: 35vw;
+  height: 100%;
+  border: black thin solid;
 }
-.hovered{
-    stroke: black;
+
+.denseChartDataBreakdown {
+  background-color: orange;
+  width: 100%;
+  height: 30%;
+}
+
+/*should be square*/
+.denseChartZoom {
+  background-color: #dce6f5;
+  width: 35vw;
+  height: 35vw;
+  border: black thin solid;
+}
+.hovered {
+  stroke: black;
 }
 .bg {
   background-color: white;
@@ -206,7 +234,7 @@ td,
 th {
   border: 1px solid #dddddd;
   text-align: left;
-  padding: 2px;
+  padding: 6px;
 }
 
 tr:nth-child(even) {
@@ -219,7 +247,7 @@ tr:nth-child(even) {
 
 .controlPanel {
   background-color: #dce6f5;
-  width: 300px;
+  width: 45%;
   flex-direction: column;
   display: flex;
   justify-content: start;
@@ -231,6 +259,7 @@ tr:nth-child(even) {
   border-left: 0;
   border-bottom: 0;
 }
+
 .simpleFlex {
   display: flex;
 }
@@ -287,26 +316,40 @@ input[type="checkbox"]:focus {
 }
 
 .denseChartDataBreakdown {
-    background-color: #dce6f5;
-    width: 100%;
-    height: 30%;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow: auto;
-    padding-left: 8px;
+  background-color: #dce6f5;
+  width: 100%;
+  height: 30%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: auto;
+  padding-left: 8px;
 }
 
-.breakdownRow{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 25%;
+.breakdownRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 25%;
 }
-.rowTitle{
-    width: initial;
+.rowTitle {
+  width: initial;
 }
-.rowData{
-    width: initial;
+.rowData {
+  width: initial;
+}
+.controlParent {
+  display: flex;
+  justify-content: flex-start;
+
+  height: 30vh;
+
+  border-color: black;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.dataCard {
+  background-color: white;
 }
