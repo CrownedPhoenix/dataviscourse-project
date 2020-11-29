@@ -260,17 +260,25 @@ class SocialStats {
             .on('click', (i, d) => {
                 this.denseChartDataBreakdown.selectChildren('*').remove();
 
-                if (this.faceBookFeatureBigger(d, feature)) {
-                    let fb = d.fb;
-                    const keys = Object.keys(fb);
+                if (d3.select(i.currentTarget).classed('facebook')) {//we selected a fb
+                    let ele = d.fb;
+                    const keys = Object.keys(ele);
                     keys.forEach(key => {
-                        const val = fb[key];
+                        const val = ele[key];
+                        let row = this.denseChartDataBreakdown.append('div').classed('breakdownRow', true);
+                        row.append('div').classed('rowTitle', true).html('<b>' + key + ':</b>');
+                        row.append('div').classed('rowData', true).text(val)
+                    });
+                } else { //its a twitter element
+                    let ele = d.tw;
+                    const keys = Object.keys(ele);
+                    keys.forEach(key => {
+                        const val = ele[key];
                         let row = this.denseChartDataBreakdown.append('div').classed('breakdownRow', true);
                         row.append('div').classed('rowTitle', true).html('<b>' + key + ':</b>');
                         row.append('div').classed('rowData', true).text(val)
                     });
                 }
-
             });
 
         //second
@@ -289,7 +297,30 @@ class SocialStats {
             .attr("class", (d) => this.getFeature(d, false, feature)[1])
             .classed("second", true)
             .on("mouseover", this.handleMouseOver)
-            .on("mouseout", this.handleMouseOut);
+            .on("mouseout", this.handleMouseOut)
+            .on('click', (i, d) => {
+                this.denseChartDataBreakdown.selectChildren('*').remove();
+
+                if (d3.select(i.currentTarget).classed('facebook')) {//we selected a fb
+                    let ele = d.fb;
+                    const keys = Object.keys(ele);
+                    keys.forEach(key => {
+                        const val = ele[key];
+                        let row = this.denseChartDataBreakdown.append('div').classed('breakdownRow', true);
+                        row.append('div').classed('rowTitle', true).html('<b>' + key + ':</b>');
+                        row.append('div').classed('rowData', true).text(val)
+                    });
+                } else { //its a twitter element
+                    let ele = d.tw;
+                    const keys = Object.keys(ele);
+                    keys.forEach(key => {
+                        const val = ele[key];
+                        let row = this.denseChartDataBreakdown.append('div').classed('breakdownRow', true);
+                        row.append('div').classed('rowTitle', true).html('<b>' + key + ':</b>');
+                        row.append('div').classed('rowData', true).text(val)
+                    });
+                }
+            });
 
         // red or blue footer
         iter = 0;
@@ -392,16 +423,6 @@ class SocialStats {
 
         //'Number of Active Accounts'
         this.drawDenseChart();
-    }
-
-    getMax(feature) {
-        return d3.max(
-            Array.from(this.SenatorData, (x) => {
-                let int1 = x.fb !== undefined ? x.fb[feature] : 0;
-                let int2 = x.tw !== undefined ? x.tw[feature] : 0;
-                return d3.max([parseInt(int1), parseInt(int2)]);
-            })
-        );
     }
 
     drawDenseChart() {
@@ -520,13 +541,25 @@ class SocialStats {
             .style("fill", (d) => (this.isParty("R", d) ? "#de0100" : "#1405bd"));
     }
 
+    getMax(feature) {
+        return d3.max(
+            Array.from(this.SenatorData, (x) => {
+                let int1 = x.fb !== undefined ? x.fb[feature] : 0;
+                let int2 = x.tw !== undefined ? x.tw[feature] : 0;
+                return d3.max([parseInt(int1), parseInt(int2)]);
+            })
+        );
+    }
+
     brushed(selection) {
     }
 
     makeAggCards() {
         this.cardContainer = this.rootDiv.append("div").classed("controlParent", true);
 
+        //////////////////////////////////
         //build control panel SORT
+        //////////////////////////////////
         let defaultSortToggle = 3; // 1 is fb
         let toggles = [
             {
@@ -612,8 +645,9 @@ class SocialStats {
             .join("h5")
             .text((d) => d.name);
 
-
+        //////////////////////////////////
         //Build Control Panel SCALE
+        //////////////////////////////////
         let toggleScale = [
             {
                 name: "Linear Scale",
@@ -648,8 +682,8 @@ class SocialStats {
                 // turnOffToggles(d.type, d.name.replace(/\s/g, ""));
                 let id = d.name.replace(/\s/g, "") + "toggle";
 
-                if(d.name === toggleScale[0].name){
-                    if(d3.select("#" + id).property("checked")){
+                if (d.name === toggleScale[0].name) {
+                    if (d3.select("#" + id).property("checked")) {
                         d3.select("#" + toggleScale[1].name.replace(/\s/g, "") + "toggle").property("checked", false);
                         toggleScale[0].lambda()
                     } else {
@@ -657,7 +691,7 @@ class SocialStats {
                         toggleScale[1].lambda();
                     }
                 } else {
-                    if(d3.select("#" + id).property("checked")){
+                    if (d3.select("#" + id).property("checked")) {
                         d3.select("#" + toggleScale[0].name.replace(/\s/g, "") + "toggle").property("checked", false)
                         toggleScale[1].lambda()
                     } else {
@@ -692,7 +726,9 @@ class SocialStats {
         ).property("checked", true);
 
 
-        //build the selectable cards.
+        //////////////////////////////////
+        // build the selectable cards.
+        //////////////////////////////////
         const avgData = this.getAverageDataByParty();
         this.cards = this.cardContainer
             .append("div")
@@ -703,7 +739,59 @@ class SocialStats {
             .classed("aggCard", true)
             .on("click", (click, d) => {
                 this.sortInfo.feature = d.feature;
-                this.setSort(this.curSortStyle, d.feature); // TODO: this.setSort(style, feature)
+                this.setSort(this.curSortStyle, d.feature);
+
+                //highlights
+                d3.selectAll('.aggCard')
+                    .classed('selectedCard', data => data.title === d.title);
+
+
+                //Build data table
+                let dTable = d3.select('#cardDataTable');
+                dTable.selectChildren('*').remove();
+                dTable.append('h4').text(d.title);
+                dTable.append('div')
+                    .classed('dataCard', true)
+                    .html(() => {
+                        return (
+                            `<table>
+                        <tr>
+                            <th></th>
+                            <th>R</th>
+                            <th>D</th>
+                        </tr>
+                        <tr>
+                            <th>Facebook</th>
+                            <th>` +
+                            d.fbR +
+                            `</th>
+                            <th>` +
+                            d.fbD +
+                            `</th>
+                        </tr>
+                        <tr>
+                            <th>Twitter</th>
+                            <th>` +
+                            d.twR +
+                            `</th>
+                            <th>` +
+                            d.twD +
+                            `</th>
+                        </tr>
+                        <tr>
+                            <th>Over All</th>
+                            <th>` +
+                            (d.fbR + d.twR) +
+                            `</th>
+                            <th>` +
+                            (d.fbD + d.twD) +
+                            `</th>
+                        </tr>
+                    </table>`
+                        );
+                    });
+
+                //redraw
                 this.drawDenseChart();
                 this.drawZoomChart(this.zoomOffset, this.zoomchartWdith, this.zoomZoom);
             });
@@ -714,48 +802,8 @@ class SocialStats {
             .text((d) => d.title)
             .classed("cardTitle", true);
 
-        //append table to cards
-        this.table = this.cards
-            .append("div")
-            .classed("tableContainer", true)
-            .html((d) => {
-                return (
-                    `<table>
-                        <tr>
-                            <th></th>
-                            <th>R</th>
-                            <th>D</th>
-                        </tr>
-                        <tr>
-                            <th>Facebook</th>
-                            <th>` +
-                    d.fbR +
-                    `</th>
-                            <th>` +
-                    d.fbD +
-                    `</th>
-                        </tr>
-                        <tr>
-                            <th>Twitter</th>
-                            <th>` +
-                    d.twR +
-                    `</th>
-                            <th>` +
-                    d.twD +
-                    `</th>
-                        </tr>
-                        <tr>
-                            <th>Over All</th>
-                            <th>` +
-                    (d.fbR + d.twR) +
-                    `</th>
-                            <th>` +
-                    (d.fbD + d.twD) +
-                    `</th>
-                        </tr>
-                    </table>`
-                );
-            });
+        this.cardContainer.append('div')
+            .attr('id', 'cardDataTable')
     }
 
     getAverageDataByParty() {
