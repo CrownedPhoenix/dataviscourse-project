@@ -578,6 +578,7 @@ class SocialStats {
             .join("div")
             .classed("aggCard", true)
             .on("click", (click, d) => {
+                this.sortInfo.feature = d.feature;
                 this.setSort(this.curSortStyle, d.feature); // TODO: this.setSort(style, feature)
                 this.drawDenseChart();
                 this.drawZoomChart(this.zoomOffset, this.zoomchartWdith, this.zoomZoom);
