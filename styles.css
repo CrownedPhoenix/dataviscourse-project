@@ -226,6 +226,9 @@ tr:nth-child(even) {
     border-left: 0;
     border-bottom: 0;
 }
+
+
+
 .simpleFlex {
     display: flex;
 }
@@ -304,4 +307,12 @@ input[type="checkbox"]:focus {
 }
 .rowData{
     width: initial;
+}
+.controlParent{
+    display: flex;
+    height: 30vh;
+
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
 }

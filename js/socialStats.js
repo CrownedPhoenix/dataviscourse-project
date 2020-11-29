@@ -191,10 +191,11 @@ class SocialStats {
     }
 
     //mouse events
-    handleMouseOver(){
+    handleMouseOver() {
         d3.select(this).classed('hovered', true);
     };
-    handleMouseOut(){
+
+    handleMouseOut() {
         d3.select(this).classed('hovered', false);
     };
 
@@ -259,10 +260,10 @@ class SocialStats {
             .on('click', (i, d) => {
                 this.denseChartDataBreakdown.selectChildren('*').remove();
 
-                if(this.faceBookFeatureBigger(d, feature)){
+                if (this.faceBookFeatureBigger(d, feature)) {
                     let fb = d.fb;
                     const keys = Object.keys(fb);
-                    keys.forEach( key => {
+                    keys.forEach(key => {
                         const val = fb[key];
                         let row = this.denseChartDataBreakdown.append('div').classed('breakdownRow', true);
                         row.append('div').classed('rowTitle', true).html('<b>' + key + ':</b>');
@@ -523,11 +524,10 @@ class SocialStats {
     }
 
     makeAggCards() {
-        this.cardContainer = this.rootDiv.append("div").classed("simpleFlex", true);
+        this.cardContainer = this.rootDiv.append("div").classed("controlParent", true);
 
-        //build control panel
+        //build control panel SORT
         let defaultSortToggle = 3; // 1 is fb
-        let defaultScaleToggle = 5;
         let toggles = [
             {
                 name: "Party",
@@ -548,17 +548,7 @@ class SocialStats {
                 name: "max",
                 lambda: () => (this.curSortStyle = "max"),
                 type: "sort",
-            },
-            {
-                name: "Linear Scale",
-                lambda: () => (this.scale = "linear"),
-                type: "scale",
-            },
-            {
-                name: "Square Root Scale",
-                lambda: () => (this.scale = "sqrt"),
-                type: "scale",
-            },
+            }
         ];
         const turnOffToggles = (type, name) => {
             for (let i = 0; i < toggles.length; i++) {
@@ -613,9 +603,7 @@ class SocialStats {
         d3.select(
             "#" + toggles[defaultSortToggle].name.replace(/\s/g, "") + "toggle"
         ).property("checked", true);
-        d3.select(
-            "#" + toggles[defaultScaleToggle].name.replace(/\s/g, "") + "toggle"
-        ).property("checked", true);
+
 
         //build inputs titles
         inputs
@@ -623,6 +611,85 @@ class SocialStats {
             .data((d) => [d])
             .join("h5")
             .text((d) => d.name);
+
+
+        //Build Control Panel SCALE
+        let toggleScale = [
+            {
+                name: "Linear Scale",
+                lambda: () => (this.scale = "linear"),
+                type: "scale",
+            },
+            {
+                name: "Sqrt Scale",
+                lambda: () => (this.scale = "sqrt"),
+                type: "scale",
+            }];
+        let defaultScaleToggle = 1;
+
+        const inputScale = this.cardContainer
+            .append("div")
+            .classed("controlPanel", true)
+            .selectChildren("input")
+            .data(toggleScale)
+            .join("div")
+            .classed("toggleParent", true);
+
+        //build inputs
+        inputScale
+            .selectChildren("*")
+            .data((d) => [d])
+            .join("input")
+            .attr("type", "checkbox")
+            .classed("toggle", true)
+            .attr("id", (d) => d.name.replace(/\s/g, "") + "toggle")
+            .on("change", (event, d) => {
+                // turnOffToggles(d.type, d.name.replace(/\s/g, ""));
+                let id = d.name.replace(/\s/g, "") + "toggle";
+
+                if(d.name === toggleScale[0].name){
+                    if(d3.select("#" + id).property("checked")){
+                        d3.select("#" + toggleScale[1].name.replace(/\s/g, "") + "toggle").property("checked", false);
+                        toggleScale[0].lambda()
+                    } else {
+                        d3.select("#" + toggleScale[1].name.replace(/\s/g, "") + "toggle").property("checked", true);
+                        toggleScale[1].lambda();
+                    }
+                } else {
+                    if(d3.select("#" + id).property("checked")){
+                        d3.select("#" + toggleScale[0].name.replace(/\s/g, "") + "toggle").property("checked", false)
+                        toggleScale[1].lambda()
+                    } else {
+                        d3.select("#" + toggleScale[0].name.replace(/\s/g, "") + "toggle").property("checked", true);
+                        toggleScale[0].lambda();
+                    }
+                }
+                // d.lambda();
+                //
+                // if (d3.select("#" + id).property("checked")) {
+                //     d.lambda();
+                // } else {
+                //     let defaultToggle = d.type === "sort" ? defaultSortToggle : defaultScaleToggle;
+                //     d3.select("#" + toggleScale[defaultToggle].name.replace(/\s/g, "") + "toggle").property("checked", true);
+                //     toggles[defaultToggle].lambda();
+                // }
+
+                //redraw charts
+                this.setSort(this.curSortStyle, this.sortInfo.feature);
+                this.drawDenseChart();
+                this.drawZoomChart(this.zoomOffset, this.zoomchartWdith, this.zoomZoom);
+            });
+
+        inputScale
+            .selectChildren("h5")
+            .data((d) => [d])
+            .join("h5")
+            .html((d) => d.name);
+
+        d3.select(
+            "#" + toggleScale[1].name.replace(/\s/g, "") + "toggle"
+        ).property("checked", true);
+
 
         //build the selectable cards.
         const avgData = this.getAverageDataByParty();
