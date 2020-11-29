@@ -28,7 +28,14 @@ class EngagementTerms {
 
     this.plotDiv.style("border", "1px solid red");
 
-    this.engagementPlot = new EngagementPlot("plot-div", data, 2015);
+    this.engagementPlot = new EngagementPlot(
+      "plot-div",
+      data,
+      2015,
+      (newSelection) => {
+        this.table.updateSelection(newSelection);
+      }
+    );
     this.table = new Table("table-div", data, 2015);
     this.slider = new Slider(
       "slider-div",
@@ -40,6 +47,7 @@ class EngagementTerms {
         this.table.updateYear(newYear);
       }
     );
+    this.infoBox = new InfoBox("info-div");
 
     d3.select("#facebook-tog").on("click", (e) => {
       this.engagementPlot.updatePlatform("Facebook");
@@ -58,7 +66,7 @@ class EngagementTerms {
 }
 
 class EngagementPlot {
-  constructor(mountPoint, data, activeYear) {
+  constructor(mountPoint, data, activeYear, updateSelection) {
     this.svgFullHeight = 300;
     this.svgFullWidth = 1000;
     this.margin = { top: 10, right: 10, left: 30, bottom: 15 };
@@ -66,9 +74,11 @@ class EngagementPlot {
     this.width = this.svgFullWidth - this.margin.left - this.margin.right;
     this.origin = { x: this.margin.left, y: this.margin.top };
 
-    this.circleRadius = 3;
+    this.circleRadius = 5;
+    this.circleHighlightRadius = 8;
     this.xBuffer = 1000;
     this.activeYear = activeYear;
+    this.updateSelection = updateSelection;
 
     this.rootDiv = d3.select(`#${mountPoint}`);
 
@@ -80,6 +90,7 @@ class EngagementPlot {
 
     this.data = this.prepareData(data);
     this.dataInfo = this.prepareDataInfo(data);
+    this.selection = new Set();
 
     this.setPlatform("Facebook");
     this.preparePlot();
@@ -90,63 +101,109 @@ class EngagementPlot {
     this.xScaleTotal = d3
       .scaleLinear()
       .domain([0, this.dataInfo.totalPosts.max + this.xBuffer])
-      .range([this.origin.x, this.width / 3]);
+      .range([this.origin.x, this.origin.x + this.width / 3]);
 
     this.xScaleLeft = d3
       .scaleLinear()
       .domain([0, this.dataInfo.totalPosts.max + this.xBuffer])
-      .range([this.width / 3, 2 * (this.width / 3)]);
+      .range([
+        this.origin.x + this.width / 3,
+        this.origin.x + 2 * (this.width / 3),
+      ]);
 
     this.xScaleRight = d3
       .scaleLinear()
       .domain([0, this.dataInfo.totalPosts.max + this.xBuffer])
-      .range([2 * (this.width / 3), this.width]);
+      .range([
+        this.origin.x + 2 * (this.width / 3),
+        this.origin.x + this.width,
+      ]);
 
     this.yScale = d3
       .scaleLinear()
       .domain([this.dataInfo.pctEffect.max, 0])
       .range([this.origin.y, this.height]);
 
-    this.yAxisGenerator = d3.axisLeft(this.yScale).ticks(10);
-    this.xAxisGeneratorTotal = d3.axisBottom(this.xScaleTotal).ticks(5);
-    this.xAxisGeneratorLeft = d3.axisBottom(this.xScaleLeft).ticks(5);
-    this.xAxisGeneratorRight = d3.axisBottom(this.xScaleRight).ticks(5);
+    const plotWidth = this.width / 3;
+    const plotHeight = this.height;
+    const plotData = [
+      {
+        x: this.origin.x,
+        y: 0,
+        yAxisGenerator: d3.axisLeft(this.yScale).ticks(10),
+        xAxisGenerator: d3.axisBottom(this.xScaleTotal).ticks(5),
+      },
+      {
+        x: this.origin.x + this.width / 3,
+        y: 0,
+        yAxisGenerator: d3
+          .axisLeft(this.yScale)
+          .ticks(10)
+          .tickPadding(-20)
+          .tickFormat((t) => ""),
+        xAxisGenerator: d3.axisBottom(this.xScaleLeft).ticks(5),
+      },
+      {
+        x: this.origin.x + 2 * (this.width / 3),
+        y: 0,
+        yAxisGenerator: d3
+          .axisLeft(this.yScale)
+          .ticks(10)
+          .tickPadding(-20)
+          .tickFormat((t) => ""),
+        xAxisGenerator: d3.axisBottom(this.xScaleRight).ticks(5),
+      },
+    ];
+
+    this.currentBrush;
 
     this.rootSVG
-      .append("g")
+      .selectChildren(".brush")
+      .data(plotData)
+      .join("g")
+      .attr("transform", ({ x, y, h, w }) => `translate(${x}, ${y})`)
+      .classed("brush", true)
+      .call(this.brush, plotHeight, plotWidth, this);
+
+    this.rootSVG
+      .selectChildren("plot-y-axis")
+      .data(plotData)
+      .join("g")
       .classed("plot-y-axis", true)
-      .attr("transform", `translate(${this.origin.x},0)`)
-      .call(this.yAxisGenerator);
+      .attr("transform", (d) => `translate(${d.x},0)`)
+      .each((d, i, nodes) => d3.select(nodes[i]).call(d.yAxisGenerator));
+
+    // this.rootSVG
+    //   .append("g")
+    //   .classed("plot-y-axis", true)
+    //   .attr("transform", `translate(${plotCoords[1].x},0)`)
+    //   .call(this.yAxisGenerator.tickPadding(-20).tickFormat((t) => ""));
+
+    // this.rootSVG
+    //   .append("g")
+    //   .classed("plot-y-axis", true)
+    //   .attr("transform", `translate(${plotCoords[2].x},0)`)
+    //   .call(this.yAxisGenerator.tickPadding(-20).tickFormat((t) => ""));
 
     this.rootSVG
-      .append("g")
-      .classed("plot-y-axis", true)
-      .attr("transform", `translate(${this.width / 3},0)`)
-      .call(this.yAxisGenerator.tickPadding(-20).tickFormat((t) => ""));
-
-    this.rootSVG
-      .append("g")
-      .classed("plot-y-axis", true)
-      .attr("transform", `translate(${2 * (this.width / 3)},0)`)
-      .call(this.yAxisGenerator.tickPadding(-20).tickFormat((t) => ""));
-
-    this.rootSVG
-      .append("g")
-      .classed("plot-x-axis-total", true)
+      .selectChildren("plot-x-axis")
+      .data(plotData)
+      .join("g")
+      .classed("plot-x-axis", true)
       .attr("transform", `translate(0,${this.height})`)
-      .call(this.xAxisGeneratorTotal);
+      .each((d, i, nodes) => d3.select(nodes[i]).call(d.xAxisGenerator));
 
-    this.rootSVG
-      .append("g")
-      .classed("plot-x-axis-left", true)
-      .attr("transform", `translate(0,${this.height})`)
-      .call(this.xAxisGeneratorLeft.tickFormat((t) => (t == 0 ? "" : t)));
+    // this.rootSVG
+    //   .append("g")
+    //   .classed("plot-x-axis-left", true)
+    //   .attr("transform", `translate(0,${this.height})`)
+    //   .call(this.xAxisGeneratorLeft.tickFormat((t) => (t == 0 ? "" : t)));
 
-    this.rootSVG
-      .append("g")
-      .classed("plot-x-axis-right", true)
-      .attr("transform", `translate(0,${this.height})`)
-      .call(this.xAxisGeneratorRight.tickFormat((t) => (t == 0 ? "" : t)));
+    // this.rootSVG
+    //   .append("g")
+    //   .classed("plot-x-axis-right", true)
+    //   .attr("transform", `translate(0,${this.height})`)
+    //   .call(this.xAxisGeneratorRight.tickFormat((t) => (t == 0 ? "" : t)));
 
     this.totalPlotPoints = this.rootSVG
       .append("g")
@@ -179,6 +236,55 @@ class EngagementPlot {
       .classed("twitter", this.platform == "Twitter");
   }
 
+  brush(plot, height, width, that) {
+    const brush = d3
+      .brush()
+      .extent([
+        [0, 0],
+        [width, height],
+      ])
+      .on("start", brushstarted)
+      .on("brush", brushed)
+      .on("end", brushended);
+
+    plot.call(brush);
+
+    function brushstarted() {
+      // console.log(that.currentBrush, this);
+      if (that.currentBrush !== this) {
+        d3.select(that.currentBrush).call(brush.move, null);
+        that.currentBrush = this;
+      }
+    }
+
+    function brushed({ selection }, offset) {
+      if (selection) {
+        const inside = that.rootSVG.selectAll("circle").filter((d, i, c) => {
+          const [[sx0, sy0], [sx1, sy1]] = selection;
+          const [[x0, y0], [x1, y1]] = [
+            [sx0 + offset.x, sy0 + offset.y],
+            [sx1 + offset.x, sy1 + offset.y],
+          ];
+
+          const [cx, cy] = [c[i].cx.animVal.value, c[i].cy.animVal.value];
+          return cx > x0 && cx < x1 && cy > y0 && cy < y1;
+        });
+        that.selection = inside
+          .data()
+          .reduce((set, el) => set.add(el.Party + el.Term), new Set());
+        that.updateSelection(that.selection);
+        that.render();
+      }
+    }
+
+    function brushended({ selection }) {
+      if (selection) return;
+      that.currentBrush = undefined;
+      that.updateSelection(new Set());
+      that.render();
+    }
+  }
+
   prepareData(data) {
     return data;
   }
@@ -188,12 +294,12 @@ class EngagementPlot {
   }
 
   updateLabel(activeYear, platform) {
-    this.labelGroup.select("#year-label").text(this.activeYear);
+    this.labelGroup.select("#year-label").text(activeYear);
     this.labelGroup
       .select("#platform-label")
       .text(this.platform)
-      .classed("facebook", this.platform == "Facebook")
-      .classed("twitter", this.platform == "Twitter");
+      .classed("facebook", platform == "Facebook")
+      .classed("twitter", platform == "Twitter");
   }
 
   render() {
@@ -206,34 +312,100 @@ class EngagementPlot {
       .selectChildren("circle")
       .data(dataForActiveYear)
       .join("circle")
+      .classed("republican", (d) => d.Party === "R")
+      .classed("democrat", (d) => d.Party === "D")
+      .classed("transparent", (d) =>
+        this.currentBrush ? !this.selection.has(d.Party + d.Term) : false
+      )
+      .on("mouseenter", (e) =>
+        d3
+          .select(e.target)
+          .transition()
+          .duration(100)
+          .attr("r", this.circleHighlightRadius)
+          .style("stroke", "black")
+          .style("stroke-width", 2)
+      )
+      .on("mouseleave", (e) =>
+        d3
+          .select(e.target)
+          .transition()
+          .duration(100)
+          .attr("r", this.circleRadius)
+          .style("stroke", "")
+          .style("stroke-width", "")
+      )
       .transition()
-      .duration(300)
+      .duration(100)
       .attr("cx", (d) => this.xScaleTotal(this.xTotalGetter(d)))
       .attr("cy", (d) => this.yScale(this.yTotalGetter(d)))
-      .attr("r", this.circleRadius)
-      .attr("class", (d) => (d.Party == "R" ? "republican" : "democrat"));
+      .attr("r", this.circleRadius);
 
     this.leftPlotPoints
       .selectChildren("circle")
       .data(dataForActiveYear)
       .join("circle")
+      .classed("republican", (d) => d.Party === "R")
+      .classed("democrat", (d) => d.Party === "D")
+      .classed("transparent", (d) =>
+        this.currentBrush ? !this.selection.has(d.Party + d.Term) : false
+      )
+      .on("mouseenter", (e) =>
+        d3
+          .select(e.target)
+          .transition()
+          .duration(100)
+          .attr("r", this.circleHighlightRadius)
+          .style("stroke", "black")
+          .style("stroke-width", 2)
+      )
+      .on("mouseleave", (e) =>
+        d3
+          .select(e.target)
+          .transition()
+          .duration(100)
+          .attr("r", this.circleRadius)
+          .style("stroke", "")
+          .style("stroke-width", "")
+      )
       .transition()
-      .duration(300)
+      .duration(100)
       .attr("cx", (d) => this.xScaleLeft(this.xLeftGetter(d)))
       .attr("cy", (d) => this.yScale(this.yLeftGetter(d)))
-      .attr("r", this.circleRadius)
-      .attr("class", (d) => (d.Party == "R" ? "republican" : "democrat"));
+      .attr("r", this.circleRadius);
 
     this.rightPlotPoints
       .selectChildren("circle")
       .data(dataForActiveYear)
       .join("circle")
+      .classed("republican", (d) => d.Party === "R")
+      .classed("democrat", (d) => d.Party === "D")
+      .classed("transparent", (d) =>
+        this.currentBrush ? !this.selection.has(d.Party + d.Term) : false
+      )
+      .on("mouseenter", (e) =>
+        d3
+          .select(e.target)
+          .transition()
+          .duration(100)
+          .attr("r", this.circleHighlightRadius)
+          .style("stroke", "black")
+          .style("stroke-width", 2)
+      )
+      .on("mouseleave", (e) =>
+        d3
+          .select(e.target)
+          .transition()
+          .duration(100)
+          .attr("r", this.circleRadius)
+          .style("stroke", "")
+          .style("stroke-width", "")
+      )
       .transition()
       .duration(300)
       .attr("cx", (d) => this.xScaleRight(this.xRightGetter(d)))
       .attr("cy", (d) => this.yScale(this.yRightGetter(d)))
-      .attr("r", this.circleRadius)
-      .attr("class", (d) => (d.Party == "R" ? "republican" : "democrat"));
+      .attr("r", this.circleRadius);
   }
 
   setPlatform(platform) {
@@ -306,6 +478,7 @@ class Table {
   constructor(mountPoint, data, activeYear) {
     this.root = d3.select(`#${mountPoint}`);
     this.activeYear = activeYear;
+    this.selection = new Set();
     this.sortInfo = { col: undefined, ascending: undefined };
     this.columnInfo = {
       ordered: ["Term", "Avg %", "Party", "Reaction %", "Share %"],
@@ -385,7 +558,11 @@ class Table {
       .data(this.columnInfo.ordered)
       .html((d) => this.getHeaderHtml(d));
 
-    let dataForActiveYear = this.data.filter((d) => d.Year == this.activeYear);
+    let dataForActiveYear = this.data.filter(
+      (d) =>
+        d.Year == this.activeYear &&
+        (this.selection.size > 0 ? this.selection.has(d.Party + d.Term) : true)
+    );
 
     this.rows = this.tbody
       .selectChildren()
@@ -459,6 +636,11 @@ class Table {
     this.render();
   }
 
+  updateSelection(selection) {
+    this.selection = selection;
+    this.render();
+  }
+
   updateSort(col) {
     if (this.sortInfo.col == col) {
       this.sortInfo.ascending = !this.sortInfo.ascending;
@@ -472,10 +654,15 @@ class Table {
   }
 
   getHeaderHtml(header) {
-    console.log(header);
     if (header == this.sortInfo.col) {
       return header + (this.sortInfo.ascending ? "&#8650;" : "&#8648;");
     }
     return header;
+  }
+}
+
+class InfoBox {
+  constructor(mountPoint) {
+    this.root = d3.select(`#${mountPoint}`);
   }
 }

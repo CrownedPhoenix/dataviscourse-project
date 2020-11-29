@@ -1,284 +1,309 @@
 .facebook {
-    fill: #3b5998;
+  fill: #3b5998;
 }
 
 .facebook-btn {
-    fill: #3b5998;
-    background-color: #3b5998;
-    border-color: #3b5998;
+  fill: #3b5998;
+  background-color: #3b5998;
+  border-color: #3b5998;
 }
 
 .twitter {
-    fill: #00acee;
+  fill: #00acee;
 }
 
 .twitter-btn {
-    fill: #00acee;
-    background-color: #00acee;
-    border-color: #00acee;
+  fill: #00acee;
+  background-color: #00acee;
+  border-color: #00acee;
 }
 
 .republican {
-    fill: #de0100;
+  fill: #de0100;
 }
 
 .democrat {
-    fill: #1405bd;
+  fill: #1405bd;
+}
+
+.transparent {
+  opacity: 20%;
 }
 
 #control-panel {
-    display: flex;
-    justify-content: space-evenly;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 #year-slider {
-    width: 100%;
+  width: 100%;
 }
 
 #plot-label text {
-    text-anchor: middle;
+  text-anchor: middle;
 }
 
 #year-label {
-    font-size: xx-large;
-    font-weight: bolder;
+  font-size: xx-large;
+  font-weight: bolder;
 }
 
 #platform-label {
-    font-size: large;
-    font-weight: bold;
+  font-size: large;
+  font-weight: bold;
 }
 
 #table-div {
-    height: 500px;
-    overflow-x: auto;
+  height: 500px;
+  overflow-x: auto;
 }
 
 #engagement-table {
-    border: 1px solid black;
-    text-align: center;
-    width: 100%;
+  border: 1px solid black;
+  text-align: center;
+  width: 100%;
 }
 
 .engagement-thead {
-    background-color: darkgray;
+  background-color: darkgray;
 }
 
 .engagement-th {
-    user-select: none;
-    position: sticky;
-    top: 0;
+  user-select: none;
+  position: sticky;
+  top: 0;
 }
 
 .engagement-thr th {
-    background-color: darkgray;
+  background-color: darkgray;
 }
 
 .engagement-tr {
 }
 
 .engagement-top-th {
-    background-color: darkorchid;
-    fill: #1405bd;
+  background-color: darkorchid;
+  fill: #1405bd;
 }
 
 #partyTopTerms {
-    margin: auto;
-    width: 95vw;
+  margin: auto;
+  width: 95vw;
 }
 
 .topTermsParent {
-    overflow-y: auto;
+  overflow-y: auto;
 }
 
 .nav {
-    height: 30px;
-    width: 100%;
-    background-color: #3B5998;
-    display: flex;
+  height: 30px;
+  width: 100%;
+  background-color: #3b5998;
+  display: flex;
 }
 
 .chartBlue {
-    height: 100vh;
-    width: 95vw;
-    background-color: #dce6f5;
-    display: flex;
-    flex-direction: column;
+  height: 100vh;
+  width: 95vw;
+  background-color: #dce6f5;
+  display: flex;
+  flex-direction: column;
 }
 
 .platformButtonContainer {
-    width: 25%;
-    height: 250px;
-    background-color: #3B5998;
+  width: 25%;
+  height: 250px;
+  background-color: #3b5998;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .topTermsNavButton {
-    margin: auto;
+  margin: auto;
 }
 
 .thirdTierToggle {
-    margin-bottom: 20px;
-    padding: 5px;
+  margin-bottom: 20px;
+  padding: 5px;
 }
 
 .cardContainer {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 95vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 95vw;
 
-    flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 .aggCard {
-    background-color: white; /*#dce6f5*/;
-    padding: 5px;
-    width: 300px;
-    height: 200px;
+  background-color: white; /*#dce6f5*/
+  padding: 5px;
+  width: 300px;
+  height: 200px;
 
-    margin: 12px;
+  margin: 12px;
 
-    border-style: solid;
-    border-color: black;
-    border-width: thin;
+  border-style: solid;
+  border-color: black;
+  border-width: thin;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .cardTitle {
-    margin-top: 3px;
-    text-align: center;
+  margin-top: 3px;
+  text-align: center;
 }
 
 .denseChartContainer {
+<<<<<<< Updated upstream
     background-color: black;
     display: flex;
     height: 70vh;
+=======
+  background-color: black;
+  display: flex;
+>>>>>>> Stashed changes
 }
 
 .denseChartToggle {
-    background-color: #DE0100;
-    width: 60vw;
-    height: 100%;
+  background-color: #de0100;
+  width: 60vw;
+  height: 100%;
 }
 
 .denseChart {
-    background-color: green;
-    width: 100%;
-    height: 70%;
+  background-color: green;
+  width: 100%;
+  height: 70%;
 }
 
+<<<<<<< Updated upstream
 /*should be square*/
 .denseChartZoom {
     background-color: #dce6f5;
     width: 35vw;
     height: 100%;
     border: black thin solid;
+=======
+.denseChartDataBreakdown {
+  background-color: orange;
+  width: 100%;
+  height: 30%;
+}
+
+/*should be square*/
+.denseChartZoom {
+  background-color: #dce6f5;
+  width: 35vw;
+  height: 35vw;
+  border: black thin solid;
+>>>>>>> Stashed changes
 }
 .hovered{
     stroke: black;
 }
 .bg {
-    background-color: white;
+  background-color: white;
 }
 
 table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
 }
 
-td, th {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 2px;
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 2px;
 }
 
 tr:nth-child(even) {
-    background-color: #dddddd;
+  background-color: #dddddd;
 }
 
 .tableContainer {
-    width: 90%;
+  width: 90%;
 }
 
 .controlPanel {
-    background-color: #dce6f5;
-    width: 300px;
-    flex-direction: column;
-    display: flex;
-    justify-content: start;
+  background-color: #dce6f5;
+  width: 300px;
+  flex-direction: column;
+  display: flex;
+  justify-content: start;
 
-    border-color: black;
-    border-style: solid;
-    border-width: 1px;
-    border-top: 0;
-    border-left: 0;
-    border-bottom: 0;
+  border-color: black;
+  border-style: solid;
+  border-width: 1px;
+  border-top: 0;
+  border-left: 0;
+  border-bottom: 0;
 }
 .simpleFlex {
-    display: flex;
+  display: flex;
 }
 
 input[type="checkbox"] {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    -webkit-tap-highlight-color: transparent;
-    cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
 }
 
 input[type="checkbox"]:focus {
-    outline: 0;
+  outline: 0;
 }
 
 .toggle {
-    height: 32px;
-    width: 52px;
-    border-radius: 16px;
-    display: inline-block;
-    position: relative;
-    margin: 0;
-    border: 2px solid #474755;
-    background: linear-gradient(180deg, #2D2F39 0%, #1F2027 100%);
-    transition: all .2s ease;
+  height: 32px;
+  width: 52px;
+  border-radius: 16px;
+  display: inline-block;
+  position: relative;
+  margin: 0;
+  border: 2px solid #474755;
+  background: linear-gradient(180deg, #2d2f39 0%, #1f2027 100%);
+  transition: all 0.2s ease;
 }
 
 .toggle:after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: white;
-    box-shadow: 0 1px 2px rgba(44, 44, 44, 0.2);
-    transition: all 0.2s cubic-bezier(0.5, 0.1, 0.75, 1.35);
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 2px rgba(44, 44, 44, 0.2);
+  transition: all 0.2s cubic-bezier(0.5, 0.1, 0.75, 1.35);
 }
 
 .toggle:checked {
-    border-color: #3b5998;
+  border-color: #3b5998;
 }
 
 .toggle:checked:after {
-    transform: translatex(20px);
+  transform: translatex(20px);
 }
 
-.toggleParent{
-    display: flex;
-    flex-direction: row;
-    padding:12px ;
+.toggleParent {
+  display: flex;
+  flex-direction: row;
+  padding: 12px;
 }
 
 .denseChartDataBreakdown {
