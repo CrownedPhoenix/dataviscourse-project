@@ -802,7 +802,7 @@ class InfoBox {
     this.data = data;
     this.label = this.root.append("div").attr("id", "info-box-label");
     this.table = this.root.append("table");
-    this.table.;
+    this.table
   }
 
   update(selection) {
