@@ -82,6 +82,8 @@ class EngagementPlot {
 
     this.rootDiv = d3.select(`#${mountPoint}`);
 
+    this.rootDiv.append("div").attr("id", "plot-tooltip");
+
     this.rootSVG = this.rootDiv
       .append("svg")
       .attr("height", this.svgFullHeight)
@@ -177,7 +179,6 @@ class EngagementPlot {
     plot.call(brush);
 
     function brushstarted() {
-      // console.log(that.currentBrush, this);
       if (that.currentBrush !== this) {
         d3.select(that.currentBrush).call(brush.move, null);
         that.currentBrush = this;
@@ -256,7 +257,6 @@ class EngagementPlot {
         };
       }
     }
-    console.log(info);
     return info;
   }
 
@@ -286,27 +286,24 @@ class EngagementPlot {
       .classed("transparent", (d) =>
         this.currentBrush ? !this.selection.has(d.Party + d.Term) : false
       )
-      .on("mouseenter", (e) =>
-        d3
-          .select(e.target)
-          .transition()
+      .on("mouseenter", (e, d) => {
+        const el = d3.select(e.target);
+        this.setTooltip(d, e.pageX, e.pageY);
+        el.transition()
           .duration(100)
           .attr("r", this.circleHighlightRadius)
           .style("stroke", "black")
-          .style("stroke-width", 2)
-          .text((d) => {
-            console.log(d);
-          })
-      )
-      .on("mouseleave", (e) =>
-        d3
-          .select(e.target)
-          .transition()
+          .style("stroke-width", 2);
+      })
+      .on("mouseleave", (e) => {
+        const el = d3.select(e.target);
+        this.setTooltip(undefined);
+        el.transition()
           .duration(100)
           .attr("r", this.circleRadius)
           .style("stroke", "")
-          .style("stroke-width", "")
-      )
+          .style("stroke-width", "");
+      })
       .transition()
       .duration(100)
       .attr("cx", (d) => this.xScaleTotal(this.xTotalGetter(d)))
@@ -322,24 +319,24 @@ class EngagementPlot {
       .classed("transparent", (d) =>
         this.currentBrush ? !this.selection.has(d.Party + d.Term) : false
       )
-      .on("mouseenter", (e) =>
-        d3
-          .select(e.target)
-          .transition()
+      .on("mouseenter", (e, d) => {
+        const el = d3.select(e.target);
+        this.setTooltip(d, e.pageX, e.pageY);
+        el.transition()
           .duration(100)
           .attr("r", this.circleHighlightRadius)
           .style("stroke", "black")
-          .style("stroke-width", 2)
-      )
-      .on("mouseleave", (e) =>
-        d3
-          .select(e.target)
-          .transition()
+          .style("stroke-width", 2);
+      })
+      .on("mouseleave", (e) => {
+        const el = d3.select(e.target);
+        this.setTooltip(undefined);
+        el.transition()
           .duration(100)
           .attr("r", this.circleRadius)
           .style("stroke", "")
-          .style("stroke-width", "")
-      )
+          .style("stroke-width", "");
+      })
       .transition()
       .duration(100)
       .attr("cx", (d) => this.xScaleLeft(this.xLeftGetter(d)))
@@ -355,29 +352,43 @@ class EngagementPlot {
       .classed("transparent", (d) =>
         this.currentBrush ? !this.selection.has(d.Party + d.Term) : false
       )
-      .on("mouseenter", (e) =>
-        d3
-          .select(e.target)
-          .transition()
+      .on("mouseenter", (e, d) => {
+        const el = d3.select(e.target);
+        this.setTooltip(d, e.pageX, e.pageY);
+        el.transition()
           .duration(100)
           .attr("r", this.circleHighlightRadius)
           .style("stroke", "black")
-          .style("stroke-width", 2)
-      )
-      .on("mouseleave", (e) =>
-        d3
-          .select(e.target)
-          .transition()
+          .style("stroke-width", 2);
+      })
+      .on("mouseleave", (e) => {
+        const el = d3.select(e.target);
+        this.setTooltip(undefined);
+        el.transition()
           .duration(100)
           .attr("r", this.circleRadius)
           .style("stroke", "")
-          .style("stroke-width", "")
-      )
+          .style("stroke-width", "");
+      })
       .transition()
       .duration(300)
       .attr("cx", (d) => this.xScaleRight(this.xRightGetter(d)))
       .attr("cy", (d) => this.yScale(this.yRightGetter(d)))
       .attr("r", this.circleRadius);
+  }
+
+  setTooltip(data, x, y) {
+    console.log(data, x, y);
+    const tooltip = d3.select("#plot-tooltip");
+    if (data) {
+      tooltip
+        .classed("hidden", false)
+        .style("left", x + "px")
+        .style("top", y + "px")
+        .text(data.Term);
+    } else {
+      tooltip.classed("hidden", true);
+    }
   }
 
   renderPlot(year) {
