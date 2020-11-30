@@ -304,6 +304,7 @@ class EngagementPlot {
           .style("stroke", "")
           .style("stroke-width", "");
       })
+      .on("click", (e, d) => {})
       .transition()
       .duration(100)
       .attr("cx", (d) => this.xScaleTotal(this.xTotalGetter(d)))
@@ -337,6 +338,7 @@ class EngagementPlot {
           .style("stroke", "")
           .style("stroke-width", "");
       })
+      .on("click", (e, d) => {})
       .transition()
       .duration(100)
       .attr("cx", (d) => this.xScaleLeft(this.xLeftGetter(d)))
@@ -370,6 +372,7 @@ class EngagementPlot {
           .style("stroke", "")
           .style("stroke-width", "");
       })
+      .on("click", (e, d) => {})
       .transition()
       .duration(300)
       .attr("cx", (d) => this.xScaleRight(this.xRightGetter(d)))
@@ -378,7 +381,6 @@ class EngagementPlot {
   }
 
   setTooltip(data, x, y) {
-    console.log(data, x, y);
     const tooltip = d3.select("#plot-tooltip");
     if (data) {
       tooltip
