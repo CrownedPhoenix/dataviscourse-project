@@ -100,12 +100,10 @@ class EngagementPlot {
   preparePlot() {
     this.xScaleTotal = d3
       .scaleLinear()
-      .domain([0, this.dataInfo.totalPosts.max + this.xBuffer])
       .range([this.origin.x, this.origin.x + this.width / 3]);
 
     this.xScaleLeft = d3
       .scaleLinear()
-      .domain([0, this.dataInfo.totalPosts.max + this.xBuffer])
       .range([
         this.origin.x + this.width / 3,
         this.origin.x + 2 * (this.width / 3),
@@ -113,97 +111,26 @@ class EngagementPlot {
 
     this.xScaleRight = d3
       .scaleLinear()
-      .domain([0, this.dataInfo.totalPosts.max + this.xBuffer])
       .range([
         this.origin.x + 2 * (this.width / 3),
         this.origin.x + this.width,
       ]);
 
-    this.yScale = d3
-      .scaleLinear()
-      .domain([this.dataInfo.pctEffect.max, 0])
-      .range([this.origin.y, this.height]);
+    this.yScale = d3.scaleLinear().range([this.origin.y, this.height]);
 
-    const plotWidth = this.width / 3;
-    const plotHeight = this.height;
-    const plotData = [
-      {
-        x: this.origin.x,
-        y: 0,
-        yAxisGenerator: d3.axisLeft(this.yScale).ticks(10),
-        xAxisGenerator: d3.axisBottom(this.xScaleTotal).ticks(5),
-      },
-      {
-        x: this.origin.x + this.width / 3,
-        y: 0,
-        yAxisGenerator: d3
-          .axisLeft(this.yScale)
-          .ticks(10)
-          .tickPadding(-20)
-          .tickFormat((t) => ""),
-        xAxisGenerator: d3.axisBottom(this.xScaleLeft).ticks(5),
-      },
-      {
-        x: this.origin.x + 2 * (this.width / 3),
-        y: 0,
-        yAxisGenerator: d3
-          .axisLeft(this.yScale)
-          .ticks(10)
-          .tickPadding(-20)
-          .tickFormat((t) => ""),
-        xAxisGenerator: d3.axisBottom(this.xScaleRight).ticks(5),
-      },
-    ];
+    this.plotWidth = this.width / 3;
+    this.plotHeight = this.height;
+    this.updatePlotData();
 
     this.currentBrush;
 
     this.rootSVG
       .selectChildren(".brush")
-      .data(plotData)
+      .data(this.plotData)
       .join("g")
       .attr("transform", ({ x, y, h, w }) => `translate(${x}, ${y})`)
       .classed("brush", true)
-      .call(this.brush, plotHeight, plotWidth, this);
-
-    this.rootSVG
-      .selectChildren("plot-y-axis")
-      .data(plotData)
-      .join("g")
-      .classed("plot-y-axis", true)
-      .attr("transform", (d) => `translate(${d.x},0)`)
-      .each((d, i, nodes) => d3.select(nodes[i]).call(d.yAxisGenerator));
-
-    // this.rootSVG
-    //   .append("g")
-    //   .classed("plot-y-axis", true)
-    //   .attr("transform", `translate(${plotCoords[1].x},0)`)
-    //   .call(this.yAxisGenerator.tickPadding(-20).tickFormat((t) => ""));
-
-    // this.rootSVG
-    //   .append("g")
-    //   .classed("plot-y-axis", true)
-    //   .attr("transform", `translate(${plotCoords[2].x},0)`)
-    //   .call(this.yAxisGenerator.tickPadding(-20).tickFormat((t) => ""));
-
-    this.rootSVG
-      .selectChildren("plot-x-axis")
-      .data(plotData)
-      .join("g")
-      .classed("plot-x-axis", true)
-      .attr("transform", `translate(0,${this.height})`)
-      .each((d, i, nodes) => d3.select(nodes[i]).call(d.xAxisGenerator));
-
-    // this.rootSVG
-    //   .append("g")
-    //   .classed("plot-x-axis-left", true)
-    //   .attr("transform", `translate(0,${this.height})`)
-    //   .call(this.xAxisGeneratorLeft.tickFormat((t) => (t == 0 ? "" : t)));
-
-    // this.rootSVG
-    //   .append("g")
-    //   .classed("plot-x-axis-right", true)
-    //   .attr("transform", `translate(0,${this.height})`)
-    //   .call(this.xAxisGeneratorRight.tickFormat((t) => (t == 0 ? "" : t)));
+      .call(this.brush, this.plotHeight, this.plotWidth, this);
 
     this.totalPlotPoints = this.rootSVG
       .append("g")
@@ -290,7 +217,47 @@ class EngagementPlot {
   }
 
   prepareDataInfo(data) {
-    return { pctEffect: { max: 10 }, totalPosts: { max: 26238 } };
+    const info = { pctEffect: {}, totalPosts: {} };
+    const years = [2015, 2016, 2017, 2018, 2019, 2020];
+    for (const year of years) {
+      info.pctEffect[year] = { Facebook: {}, Twitter: {} };
+      info.totalPosts[year] = { Facebook: {}, Twitter: {} };
+
+      for (const platform of ["Facebook", "Twitter"]) {
+        info.pctEffect[year].Facebook = {
+          max: d3.max(data, (d) =>
+            d.Year == year
+              ? Math.max(
+                  +d["Percentage Effect on Facebook Reactions"],
+                  +d["Percentage Effect on Facebook Shares"]
+                )
+              : 0
+          ),
+        };
+        info.pctEffect[year].Twitter = {
+          max: d3.max(data, (d) =>
+            d.Year == year
+              ? Math.max(
+                  +d["Percentage Effect on Twitter Favorites"],
+                  +d["Percentage Effect on Twitter Retweets"]
+                )
+              : 0
+          ),
+        };
+        info.totalPosts[year].Facebook = {
+          max: d3.max(data, (d) =>
+            d.Year == year ? +d["Number of Facebook Posts"] : 0
+          ),
+        };
+        info.totalPosts[year].Twitter = {
+          max: d3.max(data, (d) =>
+            d.Year == year ? +d["Number of Tweets"] : 0
+          ),
+        };
+      }
+    }
+    console.log(info);
+    return info;
   }
 
   updateLabel(activeYear, platform) {
@@ -303,6 +270,8 @@ class EngagementPlot {
   }
 
   render() {
+    this.renderPlot();
+
     this.updateLabel(this.activeYear, this.platform);
     const dataForActiveYear = this.data.filter(
       (d) => d.Year == this.activeYear
@@ -325,6 +294,9 @@ class EngagementPlot {
           .attr("r", this.circleHighlightRadius)
           .style("stroke", "black")
           .style("stroke-width", 2)
+          .text((d) => {
+            console.log(d);
+          })
       )
       .on("mouseleave", (e) =>
         d3
@@ -406,6 +378,80 @@ class EngagementPlot {
       .attr("cx", (d) => this.xScaleRight(this.xRightGetter(d)))
       .attr("cy", (d) => this.yScale(this.yRightGetter(d)))
       .attr("r", this.circleRadius);
+  }
+
+  renderPlot(year) {
+    if (year != this.activeYear) {
+      this.updatePlotData();
+      this.rootSVG
+        .selectChildren(".plot-y-axis")
+        .data(this.plotData)
+        .join("g")
+        .classed("plot-y-axis", true)
+        .attr("transform", (d) => `translate(${d.x},0)`)
+        .each((d, i, nodes) => d3.select(nodes[i]).call(d.yAxisGenerator));
+
+      this.rootSVG
+        .selectChildren(".plot-x-axis")
+        .data(this.plotData)
+        .join("g")
+        .classed("plot-x-axis", true)
+        .attr("transform", `translate(0,${this.height})`)
+        .each((d, i, nodes) => d3.select(nodes[i]).call(d.xAxisGenerator));
+    }
+  }
+
+  updatePlotData() {
+    this.xScaleTotal.domain([
+      0,
+      this.dataInfo.totalPosts[this.activeYear][this.platform].max +
+        this.xBuffer,
+    ]);
+
+    this.xScaleLeft.domain([
+      0,
+      this.dataInfo.totalPosts[this.activeYear][this.platform].max +
+        this.xBuffer,
+    ]);
+
+    this.xScaleRight.domain([
+      0,
+      this.dataInfo.totalPosts[this.activeYear][this.platform].max +
+        this.xBuffer,
+    ]);
+    this.yScale.domain([
+      this.dataInfo.pctEffect[this.activeYear][this.platform].max,
+      0,
+    ]);
+
+    this.plotData = [
+      {
+        x: this.origin.x,
+        y: 0,
+        yAxisGenerator: d3.axisLeft(this.yScale).ticks(10),
+        xAxisGenerator: d3.axisBottom(this.xScaleTotal).ticks(5),
+      },
+      {
+        x: this.origin.x + this.width / 3,
+        y: 0,
+        yAxisGenerator: d3
+          .axisLeft(this.yScale)
+          .ticks(10)
+          .tickPadding(-20)
+          .tickFormat((t) => ""),
+        xAxisGenerator: d3.axisBottom(this.xScaleLeft).ticks(5),
+      },
+      {
+        x: this.origin.x + 2 * (this.width / 3),
+        y: 0,
+        yAxisGenerator: d3
+          .axisLeft(this.yScale)
+          .ticks(10)
+          .tickPadding(-20)
+          .tickFormat((t) => ""),
+        xAxisGenerator: d3.axisBottom(this.xScaleRight).ticks(5),
+      },
+    ];
   }
 
   setPlatform(platform) {
