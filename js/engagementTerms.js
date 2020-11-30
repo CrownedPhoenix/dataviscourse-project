@@ -88,9 +88,11 @@ class EngagementPlot {
     this.rootDiv.append("div").attr("id", "plot-tooltip");
     this.setTooltip(undefined);
 
-    this.rootDiv
+    this.engagementTitle = this.rootDiv
       .append("div")
-      .attr("id", "engagement-title")
+      .attr("id", "engagement-title");
+    this.engagementTitle
+      .append("div")
       .text("How did different terms affect engagement?");
 
     this.rootSVG = this.rootDiv
@@ -163,39 +165,15 @@ class EngagementPlot {
       .style("text-anchor", "middle")
       .text("% Effect on Engagement");
 
-    this.totalLabel = this.rootSVG
-      .append("text")
-      .attr("id", "left-label")
-      .attr(
-        "transform",
-        `translate(${this.origin.x + this.width / 6},${this.height + 50})`
-      )
-      .style("text-anchor", "middle");
-
-    this.leftLabel = this.rootSVG
+    this.bottomLabel = this.rootSVG
       .append("text")
       .attr(
         "transform",
         `translate(${this.origin.x + this.width / 2},${this.height + 50})`
       )
-      .style("text-anchor", "middle");
+      .style("text-anchor", "middle")
+      .style("font-size", "x-large");
 
-    this.rightLabel = this.rootSVG
-      .append("text")
-      .attr(
-        "transform",
-        `translate(${this.origin.x + (5 * this.width) / 6},${this.height + 50})`
-      )
-      .style("text-anchor", "middle");
-
-    this.bottomLabel = this.rootSVG
-      .append("text")
-      .attr("id", "bottom-label")
-      .attr(
-        "transform",
-        `translate(${this.origin.x + this.width / 6},${this.height + 70})`
-      )
-      .style("text-anchor", "middle");
 
     this.labelGroup = this.rootSVG.append("g").attr("id", "plot-label");
 
@@ -498,10 +476,7 @@ class EngagementPlot {
   }
 
   renderPlot(year) {
-    this.totalLabel.text(`# of Either`)
-    this.leftLabel.text(`# of ${this.platform == 'Facebook' ? 'Reactions' : 'Favorites'}`)
-    this.rightLabel.text(`# of ${this.platform == 'Facebook' ? 'Shares' : 'Retweets'}`)
-
+    this.bottomLabel.text(`# of ${this.platform == 'Facebook' ? 'posts': "tweets"} in which term appeared`)
     if (year != this.activeYear) {
       this.updatePlotData();
       this.rootSVG
