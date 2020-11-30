@@ -814,7 +814,6 @@ class InfoBox {
         datapoint.Year,
         datapoint["Average Percentage Effect"]
       );
-      console.log(datapoint);
 
       this.displayData = [
         [
