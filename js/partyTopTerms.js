@@ -257,7 +257,7 @@ class PartyTopTerms {
 
   setAllArrowsUp() {
     d3.select("#repPortionArrow").html(
-      "<span id=\"demPortionArrow\" style='font-size:17px;'>&#8648;</span>"
+      "<span id=\"repPortionArrow\" style='font-size:17px;'>&#8648;</span>"
     );
     d3.select("#demPortionArrow").html(
       "<span id=\"demPortionArrow\" style='font-size:17px;'>&#8648;</span>"
