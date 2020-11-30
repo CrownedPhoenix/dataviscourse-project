@@ -30,6 +30,28 @@
   opacity: 20%;
 }
 
+#engagementTerms {
+  display: flex;
+  justify-content: center;
+  border: solid black 1px;
+}
+
+#engagement-title {
+    font-size: x-large;
+    font-weight: bolder;
+}
+
+#engagementTerms #left {
+  width: 75%;
+}
+#engagementTerms #left #plot-div {
+  height: 60%;
+}
+
+#engagementTerms #right {
+  width: 25%;
+}
+
 #control-panel {
   display: flex;
   justify-content: space-evenly;

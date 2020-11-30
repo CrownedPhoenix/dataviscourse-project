@@ -1,9 +1,6 @@
 class EngagementTerms {
   constructor(mountPoint, data) {
-    this.rootDiv = d3
-      .select(`#${mountPoint}`)
-      .style("border", "1px solid black")
-      .style("display", "flex");
+    this.rootDiv = d3.select(`#${mountPoint}`);
 
     const left = this.rootDiv.append("div").attr("id", "left");
     this.plotDiv = left.append("div").attr("id", "plot-div");
@@ -26,7 +23,6 @@ class EngagementTerms {
       .classed("facebook-btn", (d) => d == 0)
       .classed("twitter-btn", (d) => d == 1);
 
-    this.plotDiv.style("border", "1px solid red");
     this.infoBox = new InfoBox("info-div", data);
 
     this.engagementPlot = new EngagementPlot(
@@ -72,9 +68,13 @@ class EngagementTerms {
 
 class EngagementPlot {
   constructor(mountPoint, data, activeYear, handleSelectionUpdate) {
+    this.rootDiv = d3.select(`#${mountPoint}`);
+
+    const rect = this.rootDiv.node().getBoundingClientRect();
+    console.log(rect);
     this.svgFullHeight = 300;
-    this.svgFullWidth = 1000;
-    this.margin = { top: 10, right: 10, left: 30, bottom: 15 };
+    this.svgFullWidth = rect.width;
+    this.margin = { top: 30, right: 10, left: 60, bottom: 50 };
     this.height = this.svgFullHeight - this.margin.top - this.margin.bottom;
     this.width = this.svgFullWidth - this.margin.left - this.margin.right;
     this.origin = { x: this.margin.left, y: this.margin.top };
@@ -85,16 +85,18 @@ class EngagementPlot {
     this.activeYear = activeYear;
     this.handleSelectionUpdate = handleSelectionUpdate;
 
-    this.rootDiv = d3.select(`#${mountPoint}`);
-
     this.rootDiv.append("div").attr("id", "plot-tooltip");
     this.setTooltip(undefined);
+
+    this.rootDiv
+      .append("div")
+      .attr("id", "engagement-title")
+      .text("How did different terms affect engagement?");
 
     this.rootSVG = this.rootDiv
       .append("svg")
       .attr("height", this.svgFullHeight)
-      .attr("width", this.svgFullWidth)
-      .style("border", "1px dotted black");
+      .attr("width", this.svgFullWidth);
 
     this.data = this.prepareData(data);
     this.dataInfo = this.prepareDataInfo(data);
