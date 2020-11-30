@@ -154,6 +154,49 @@ class EngagementPlot {
       .append("g")
       .attr("id", "right-plot-points");
 
+    this.rootSVG
+      .append("text")
+      .attr(
+        "transform",
+        `translate(${this.margin.left / 2},${this.height / 2}) rotate(-90)`
+      )
+      .style("text-anchor", "middle")
+      .text("% Effect on Engagement");
+
+    this.totalLabel = this.rootSVG
+      .append("text")
+      .attr("id", "left-label")
+      .attr(
+        "transform",
+        `translate(${this.origin.x + this.width / 6},${this.height + 50})`
+      )
+      .style("text-anchor", "middle");
+
+    this.leftLabel = this.rootSVG
+      .append("text")
+      .attr(
+        "transform",
+        `translate(${this.origin.x + this.width / 2},${this.height + 50})`
+      )
+      .style("text-anchor", "middle");
+
+    this.rightLabel = this.rootSVG
+      .append("text")
+      .attr(
+        "transform",
+        `translate(${this.origin.x + (5 * this.width) / 6},${this.height + 50})`
+      )
+      .style("text-anchor", "middle");
+
+    this.bottomLabel = this.rootSVG
+      .append("text")
+      .attr("id", "bottom-label")
+      .attr(
+        "transform",
+        `translate(${this.origin.x + this.width / 6},${this.height + 70})`
+      )
+      .style("text-anchor", "middle");
+
     this.labelGroup = this.rootSVG.append("g").attr("id", "plot-label");
 
     this.labelGroup
@@ -455,6 +498,10 @@ class EngagementPlot {
   }
 
   renderPlot(year) {
+    this.totalLabel.text(`# of Either`)
+    this.leftLabel.text(`# of ${this.platform == 'Facebook' ? 'Reactions' : 'Favorites'}`)
+    this.rightLabel.text(`# of ${this.platform == 'Facebook' ? 'Shares' : 'Retweets'}`)
+
     if (year != this.activeYear) {
       this.updatePlotData();
       this.rootSVG
