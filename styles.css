@@ -43,7 +43,7 @@
   position: absolute;
   text-align: center;
   width: fit-content;
-  height: 28px;
+  height: fit-content;
   padding: 5px;
   font: 12px sans-serif;
   background: lightsteelblue;
@@ -51,6 +51,7 @@
   border-radius: 8px;
   pointer-events: none;
   transform: translate(0, -100%);
+  line-height: 0;
 }
 
 .hidden {

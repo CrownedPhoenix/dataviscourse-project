@@ -34,6 +34,11 @@ class EngagementTerms {
       2015,
       (newSelection) => {
         this.table.updateSelection(newSelection);
+        if (newSelection.size == 1) {
+          this.infoBox.update(Array.from(newSelection)[0]);
+        } else {
+          this.infoBox.update(undefined);
+        }
       }
     );
     this.table = new Table("table-div", data, 2015);
@@ -47,7 +52,7 @@ class EngagementTerms {
         this.table.updateYear(newYear);
       }
     );
-    this.infoBox = new InfoBox("info-div");
+    this.infoBox = new InfoBox("info-div", data);
 
     d3.select("#facebook-tog").on("click", (e) => {
       this.engagementPlot.updatePlatform("Facebook");
@@ -66,7 +71,7 @@ class EngagementTerms {
 }
 
 class EngagementPlot {
-  constructor(mountPoint, data, activeYear, updateSelection) {
+  constructor(mountPoint, data, activeYear, handleSelectionUpdate) {
     this.svgFullHeight = 300;
     this.svgFullWidth = 1000;
     this.margin = { top: 10, right: 10, left: 30, bottom: 15 };
@@ -78,11 +83,12 @@ class EngagementPlot {
     this.circleHighlightRadius = 8;
     this.xBuffer = 1000;
     this.activeYear = activeYear;
-    this.updateSelection = updateSelection;
+    this.handleSelectionUpdate = handleSelectionUpdate;
 
     this.rootDiv = d3.select(`#${mountPoint}`);
 
     this.rootDiv.append("div").attr("id", "plot-tooltip");
+    this.setTooltip(undefined);
 
     this.rootSVG = this.rootDiv
       .append("svg")
@@ -197,10 +203,10 @@ class EngagementPlot {
           const [cx, cy] = [c[i].cx.animVal.value, c[i].cy.animVal.value];
           return cx > x0 && cx < x1 && cy > y0 && cy < y1;
         });
-        that.selection = inside
+        const newSelection = inside
           .data()
           .reduce((set, el) => set.add(el.Party + el.Term), new Set());
-        that.updateSelection(that.selection);
+        that.updateSelection(newSelection);
         that.render();
       }
     }
@@ -245,6 +251,18 @@ class EngagementPlot {
               : 0
           ),
         };
+        info.pctEffect[year].Total = {
+          max: d3.max(data, (d) =>
+            d.Year == year
+              ? Math.max(
+                  +d["Percentage Effect on Facebook Reactions"],
+                  +d["Percentage Effect on Facebook Shares"],
+                  +d["Percentage Effect on Twitter Favorites"],
+                  +d["Percentage Effect on Twitter Retweets"]
+                )
+              : 0
+          ),
+        };
         info.totalPosts[year].Facebook = {
           max: d3.max(data, (d) =>
             d.Year == year ? +d["Number of Facebook Posts"] : 0
@@ -255,18 +273,16 @@ class EngagementPlot {
             d.Year == year ? +d["Number of Tweets"] : 0
           ),
         };
+        info.totalPosts[year].Total = {
+          max: d3.max(data, (d) =>
+            d.Year == year
+              ? +d["Number of Tweets"] + +d["Number of Facebook Posts"]
+              : 0
+          ),
+        };
       }
     }
     return info;
-  }
-
-  updateLabel(activeYear, platform) {
-    this.labelGroup.select("#year-label").text(activeYear);
-    this.labelGroup
-      .select("#platform-label")
-      .text(this.platform)
-      .classed("facebook", platform == "Facebook")
-      .classed("twitter", platform == "Twitter");
   }
 
   render() {
@@ -284,11 +300,20 @@ class EngagementPlot {
       .classed("republican", (d) => d.Party === "R")
       .classed("democrat", (d) => d.Party === "D")
       .classed("transparent", (d) =>
-        this.currentBrush ? !this.selection.has(d.Party + d.Term) : false
+        this.currentBrush || this.selection.size > 0
+          ? !this.selection.has(d.Party + d.Term)
+          : false
       )
       .on("mouseenter", (e, d) => {
         const el = d3.select(e.target);
-        this.setTooltip(d, e.pageX, e.pageY);
+        const html = this.genTooltipHtml(
+          d.Term,
+          this.platform == "Facebook" ? "Avg Reaction %" : "Avg Favorite %",
+          this.yTotalGetter(d),
+          this.platform == "Facebook" ? "Total Posts" : "Total Tweets",
+          this.xTotalGetter(d)
+        );
+        this.setTooltip(html, e.pageX, e.pageY);
         el.transition()
           .duration(100)
           .attr("r", this.circleHighlightRadius)
@@ -304,9 +329,12 @@ class EngagementPlot {
           .style("stroke", "")
           .style("stroke-width", "");
       })
-      .on("click", (e, d) => {})
+      .on("click", (e, d) => {
+        const selection = new Set().add(d.Party + d.Term);
+        this.updateSelection(selection);
+      })
       .transition()
-      .duration(100)
+      .duration(300)
       .attr("cx", (d) => this.xScaleTotal(this.xTotalGetter(d)))
       .attr("cy", (d) => this.yScale(this.yTotalGetter(d)))
       .attr("r", this.circleRadius);
@@ -318,11 +346,20 @@ class EngagementPlot {
       .classed("republican", (d) => d.Party === "R")
       .classed("democrat", (d) => d.Party === "D")
       .classed("transparent", (d) =>
-        this.currentBrush ? !this.selection.has(d.Party + d.Term) : false
+        this.currentBrush || this.selection.size > 0
+          ? !this.selection.has(d.Party + d.Term)
+          : false
       )
       .on("mouseenter", (e, d) => {
         const el = d3.select(e.target);
-        this.setTooltip(d, e.pageX, e.pageY);
+        const html = this.genTooltipHtml(
+          d.Term,
+          this.platform == "Facebook" ? "Reaction %" : "Favorite %",
+          this.yLeftGetter(d),
+          this.platform == "Facebook" ? "Posts" : "Tweets",
+          this.xLeftGetter(d)
+        );
+        this.setTooltip(html, e.pageX, e.pageY);
         el.transition()
           .duration(100)
           .attr("r", this.circleHighlightRadius)
@@ -338,9 +375,12 @@ class EngagementPlot {
           .style("stroke", "")
           .style("stroke-width", "");
       })
-      .on("click", (e, d) => {})
+      .on("click", (e, d) => {
+        const selection = new Set().add(d.Party + d.Term);
+        this.updateSelection(selection);
+      })
       .transition()
-      .duration(100)
+      .duration(300)
       .attr("cx", (d) => this.xScaleLeft(this.xLeftGetter(d)))
       .attr("cy", (d) => this.yScale(this.yLeftGetter(d)))
       .attr("r", this.circleRadius);
@@ -352,11 +392,20 @@ class EngagementPlot {
       .classed("republican", (d) => d.Party === "R")
       .classed("democrat", (d) => d.Party === "D")
       .classed("transparent", (d) =>
-        this.currentBrush ? !this.selection.has(d.Party + d.Term) : false
+        this.currentBrush || this.selection.size > 0
+          ? !this.selection.has(d.Party + d.Term)
+          : false
       )
       .on("mouseenter", (e, d) => {
         const el = d3.select(e.target);
-        this.setTooltip(d, e.pageX, e.pageY);
+        const html = this.genTooltipHtml(
+          d.Term,
+          this.platform == "Facebook" ? "Shares %" : "Retweets %",
+          this.yRightGetter(d),
+          this.platform == "Facebook" ? "Posts" : "Tweets",
+          this.xRightGetter(d)
+        );
+        this.setTooltip(html, e.pageX, e.pageY);
         el.transition()
           .duration(100)
           .attr("r", this.circleHighlightRadius)
@@ -372,7 +421,10 @@ class EngagementPlot {
           .style("stroke", "")
           .style("stroke-width", "");
       })
-      .on("click", (e, d) => {})
+      .on("click", (e, d) => {
+        const selection = new Set().add(d.Party + d.Term);
+        this.updateSelection(selection);
+      })
       .transition()
       .duration(300)
       .attr("cx", (d) => this.xScaleRight(this.xRightGetter(d)))
@@ -380,17 +432,24 @@ class EngagementPlot {
       .attr("r", this.circleRadius);
   }
 
-  setTooltip(data, x, y) {
+  setTooltip(html, x, y) {
     const tooltip = d3.select("#plot-tooltip");
-    if (data) {
+    if (html) {
       tooltip
         .classed("hidden", false)
         .style("left", x + "px")
         .style("top", y + "px")
-        .text(data.Term);
+        .html(html);
     } else {
       tooltip.classed("hidden", true);
     }
+  }
+
+  genTooltipHtml(term, label1, content1, label2, content2) {
+    return `<h6>${term}</h6>
+    <p><b>${label1}:</b> ${content1}</p>
+    <br>
+    <b>${label2}:</b> ${content2}</p>`;
   }
 
   renderPlot(year) {
@@ -402,7 +461,9 @@ class EngagementPlot {
         .join("g")
         .classed("plot-y-axis", true)
         .attr("transform", (d) => `translate(${d.x},0)`)
-        .each((d, i, nodes) => d3.select(nodes[i]).call(d.yAxisGenerator));
+        .each((d, i, nodes) =>
+          d3.select(nodes[i]).transition().duration(300).call(d.yAxisGenerator)
+        );
 
       this.rootSVG
         .selectChildren(".plot-x-axis")
@@ -410,15 +471,16 @@ class EngagementPlot {
         .join("g")
         .classed("plot-x-axis", true)
         .attr("transform", `translate(0,${this.height})`)
-        .each((d, i, nodes) => d3.select(nodes[i]).call(d.xAxisGenerator));
+        .each((d, i, nodes) =>
+          d3.select(nodes[i]).transition().duration(300).call(d.xAxisGenerator)
+        );
     }
   }
 
   updatePlotData() {
     this.xScaleTotal.domain([
       0,
-      this.dataInfo.totalPosts[this.activeYear][this.platform].max +
-        this.xBuffer,
+      this.dataInfo.totalPosts[this.activeYear].Total.max + this.xBuffer,
     ]);
 
     this.xScaleLeft.domain([
@@ -432,10 +494,7 @@ class EngagementPlot {
       this.dataInfo.totalPosts[this.activeYear][this.platform].max +
         this.xBuffer,
     ]);
-    this.yScale.domain([
-      this.dataInfo.pctEffect[this.activeYear][this.platform].max,
-      0,
-    ]);
+    this.yScale.domain([this.dataInfo.pctEffect[this.activeYear].Total.max, 0]);
 
     this.plotData = [
       {
@@ -501,6 +560,23 @@ class EngagementPlot {
   updateYear(newYear) {
     this.activeYear = newYear;
     this.render();
+  }
+
+  updateSelection(selection) {
+    if (this.selection != selection) {
+      this.selection = selection;
+      this.handleSelectionUpdate(selection);
+      this.render();
+    }
+  }
+
+  updateLabel(activeYear, platform) {
+    this.labelGroup.select("#year-label").text(activeYear);
+    this.labelGroup
+      .select("#platform-label")
+      .text(this.platform)
+      .classed("facebook", platform == "Facebook")
+      .classed("twitter", platform == "Twitter");
   }
 }
 
@@ -721,7 +797,20 @@ class Table {
 }
 
 class InfoBox {
-  constructor(mountPoint) {
+  constructor(mountPoint, data) {
     this.root = d3.select(`#${mountPoint}`);
+    this.data = data;
+    this.label = this.root.append("div").attr("id", "info-box-label");
+    this.table = this.root.append("table");
+    this.table.;
   }
+
+  update(selection) {
+    console.log(selection);
+    const datapoint = this.data.find((d) => selection == d.Party + d.Term);
+    this.updateLabel(datapoint.Term);
+    console.log(datapoint);
+  }
+
+  updateLabel(content) {}
 }
