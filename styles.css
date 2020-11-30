@@ -105,6 +105,51 @@
   fill: #1405bd;
 }
 
+#info-box-label {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#info-box-label div {
+  font-size: larger;
+  font-weight: bolder;
+}
+#info-box-label .term {
+}
+#info-box-label .party {
+}
+#info-box-label .year {
+}
+#info-box-label .avg {
+}
+
+#info-div table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+#info-div table td {
+  border-style: solid;
+  border-width: 0px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+  padding: 10px 5px;
+  word-break: normal;
+  text-align: left;
+  vertical-align: top;
+}
+#info-div table th {
+  border-style: solid;
+  border-width: 0px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  overflow: hidden;
+  padding: 10px 5px;
+  word-break: normal;
+}
+
 #partyTopTerms {
   margin: auto;
   width: 95vw;

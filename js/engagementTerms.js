@@ -27,6 +27,7 @@ class EngagementTerms {
       .classed("twitter-btn", (d) => d == 1);
 
     this.plotDiv.style("border", "1px solid red");
+    this.infoBox = new InfoBox("info-div", data);
 
     this.engagementPlot = new EngagementPlot(
       "plot-div",
@@ -52,7 +53,6 @@ class EngagementTerms {
         this.table.updateYear(newYear);
       }
     );
-    this.infoBox = new InfoBox("info-div", data);
 
     d3.select("#facebook-tog").on("click", (e) => {
       this.engagementPlot.updatePlatform("Facebook");
@@ -802,15 +802,86 @@ class InfoBox {
     this.data = data;
     this.label = this.root.append("div").attr("id", "info-box-label");
     this.table = this.root.append("table");
-    this.table
+    this.update(undefined);
   }
 
   update(selection) {
-    console.log(selection);
-    const datapoint = this.data.find((d) => selection == d.Party + d.Term);
-    this.updateLabel(datapoint.Term);
-    console.log(datapoint);
+    if (selection) {
+      const datapoint = this.data.find((d) => selection == d.Party + d.Term);
+      this.updateLabel(
+        datapoint.Term,
+        datapoint.Party,
+        datapoint.Year,
+        datapoint["Average Percentage Effect"]
+      );
+      console.log(datapoint);
+
+      this.displayData = [
+        [
+          "Number of Facebook Posts",
+          datapoint["Number of Facebook Posts"],
+          "Number of Tweets",
+          datapoint["Number of Tweets"],
+        ],
+        [
+          "Percentage Effect on Facebook Reactions",
+          datapoint["Percentage Effect on Facebook Reactions"],
+          "Percentage Effect on Twitter Favorites",
+          datapoint["Percentage Effect on Twitter Favorites"],
+        ],
+        [
+          "Percentage Effect on Facebook Shares",
+          datapoint["Percentage Effect on Facebook Shares"],
+          "Percentage Effect on Twitter Retweets",
+          datapoint["Percentage Effect on Twitter Retweets"],
+        ],
+      ];
+    } else {
+      this.displayData = [[], [], []];
+    }
+    this.rows = this.table
+      .selectChildren("tr")
+      .data(this.displayData)
+      .join("tr");
+    this.rows
+      .selectChildren("td")
+      .data((d) => [...d])
+      .join("td")
+      .text((d) => d);
   }
 
-  updateLabel(content) {}
+  updateLabel(term, party, year, avg) {
+    const d = [term, party, year, avg];
+    this.label
+      .selectChildren("div")
+      .data(d)
+      .join("div")
+      .style("display", "inline")
+      .text((d, i) => {
+        switch (i) {
+          case 0:
+            return `Term: ${d}`;
+
+          case 1:
+            return `Party: ${d}`;
+          case 2:
+            return `Year: ${d}`;
+          case 3:
+            return `Average % Effect: ${d}`;
+        }
+      })
+      .attr("class", (d, i) => {
+        switch (i) {
+          case 0:
+            return "term";
+
+          case 1:
+            return "party";
+          case 2:
+            return "year";
+          case 3:
+            return `avg`;
+        }
+      });
+  }
 }
