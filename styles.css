@@ -297,13 +297,6 @@
   height: 30%;
 }
 
-/*should be square*/
-.denseChartZoom {
-  background-color: #dce6f5;
-  width: 35vw;
-  height: 35vw;
-  border: black thin solid;
-}
 .hovered {
   stroke: black;
 }

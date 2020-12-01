@@ -218,7 +218,6 @@ class SocialStats {
         let feature = this.sortInfo.feature;
         const max = this.getMax(feature);
 
-
         //scale / AXIS
         let tickAmount = 5;
         if (feature === "Number of Active Accounts") {
