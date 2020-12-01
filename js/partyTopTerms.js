@@ -15,7 +15,7 @@ class PartyTopTerms {
     this.nav
       .append("button")
       .html(
-        "alphabetical <span id=\"topTermsArrow\" style='font-size:17px;'>&#8648;</span>"
+        "Sort Alphabetically <span id=\"topTermsArrow\" style='font-size:17px;'>&#8648;</span>"
       )
       .classed("topTermsNavButton", true)
       .on("click", () => {
@@ -41,7 +41,7 @@ class PartyTopTerms {
     this.nav
       .append("button")
       .html(
-        "posNegRatio <span id=\"posNegArrow\" style='font-size:17px;'>&#8648;</span>"
+        "Sort by Party Ratio <span id=\"posNegArrow\" style='font-size:17px;'>&#8648;</span>"
       )
       .classed("topTermsNavButton", true)
       .on("click", () => {
@@ -70,7 +70,7 @@ class PartyTopTerms {
     this.nav
       .append("button")
       .html(
-        "Rep proportion <span id=\"repPortionArrow\"  style='font-size:17px;'>&#8648;</span>"
+        "Sort by Republican Proportion <span id=\"repPortionArrow\"  style='font-size:17px;'>&#8648;</span>"
       )
       .classed("topTermsNavButton", true)
       .on("click", () => {
@@ -98,7 +98,7 @@ class PartyTopTerms {
     this.nav
       .append("button")
       .html(
-        "Dem proportion <span id=\"demPortionArrow\" style='font-size:17px;'>&#8648;</span>"
+        "Sort by Democrat Proportion <span id=\"demPortionArrow\" style='font-size:17px;'>&#8648;</span>"
       )
       .classed("topTermsNavButton", true)
       .on("click", () => {
