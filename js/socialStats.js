@@ -208,7 +208,7 @@ class SocialStats {
         const zoomPosScale = d3
             .scaleLinear()
             .domain([this.chartStart, chartWdith])
-            .range([0, this.denseZoomChartSize.width]);
+            .range([0, this.denseZoomChartSize.width - 15]);
         const zoomOffset = -zoomPosScale(offset) * zoom;
 
         this.zoomOffset = offset;
@@ -218,7 +218,13 @@ class SocialStats {
         let feature = this.sortInfo.feature;
         const max = this.getMax(feature);
 
-        //scale
+
+        //scale / AXIS
+        let tickAmount = 5;
+        if (feature === "Number of Active Accounts") {
+            tickAmount = 3;
+        }
+
         let yScale = d3
             .scaleSqrt()
             .domain([0, max])
@@ -229,6 +235,19 @@ class SocialStats {
                 .domain([0, max])
                 .range([chartHeight, chartSpaceAbove]);
         }
+
+        this.denseZoomSVG.select('.axis').remove()
+        let yAxis = d3
+            .axisLeft()
+            .scale(yScale)
+            .tickFormat(d3.format("d"))
+            .ticks(tickAmount);
+
+        this.denseZoomSVG
+            .append("g")
+            .classed("axis", true)
+            .attr("transform", "translate(" + this.chartStart + " " + 0 + " )")
+            .call(yAxis);
 
         let denseZoomG = this.denseZoomSVG
             .selectChildren(".bars")
@@ -368,7 +387,8 @@ class SocialStats {
             .attr("height", this.denseChartSize.height)
             .classed("bg", true);
 
-        this.chartStart = 45;
+        this.chartLeftSideOffset = 20;
+        this.chartStart = 45 + this.chartLeftSideOffset;
 
         //make this.denseG
         this.denseG = this.denseSVG
@@ -381,45 +401,54 @@ class SocialStats {
         this.denseSVG
             .append("line")
             .attr("x1", this.chartStart)
-            .attr("x2", this.denseChartSize.width - 10)
+            .attr("x2", this.denseChartSize.width - 10 -this.chartLeftSideOffset)
             .attr("y1", this.denseChartSize.height - 20) // -charSpaceAbove -chartHeightOffset
             .attr("y2", this.denseChartSize.height - 20)
             .attr("stroke-width", 1)
             .attr("stroke", "black");
 
-        const chartWidth = this.denseChartSize.width - 15;
+        this.denseSVG.append("text")
+            .attr("transform", "translate(" + (this.denseChartSize.width / 2) + " ," + ( this.denseChartSize.height) + ")")
+            .classed('label', true)
+            .text("Senators");
 
-        const brushed = ({selection}) => {
-            let left = selection[0];
-            let right = selection[1];
-            // this.chartStart
-            //this.denseChartSize.width - 10
+        this.yLabel = this.denseSVG.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 )
+            .attr("x",0 - (this.denseChartSize.height / 2))
+            .attr("dy", "1em")
+            .classed('label', true)
+            .text("y thing goes here");
 
+        const chartWidth = this.denseChartSize.width - 15 - this.chartLeftSideOffset;
+
+        const brushed = (event) => {
+            let left = event.selection[0];
+            let right = event.selection[1];
             let zoom = chartWidth / (right - left);
 
-            // console.log('leftMost:' +JSON.stringify(-(leftMost)));
-            this.drawZoomChart(left, chartWidth, zoom);
+            let brushMaxWidth = chartWidth/16;
+
+
+            // if((right - left) < brushMaxWidth){
+                this.drawZoomChart(left, chartWidth, zoom);
+            // } else {
+            //     event.target.extent([left, left+brushMaxWidth]);
+            //     event.target(event.target)
+            // }
+
+
         };
 
-        this.denseSVG.call(
-            d3
-                .brushX()
-                .extent([
-                    [this.chartStart, 0],
-                    [this.denseChartSize.width - 10, this.denseChartSize.height],
-                ])
-                .on("brush", this.brushed)
-        );
         //make brush
-        this.denseSVG.call(
-            d3
-                .brushX()
-                .extent([
-                    [this.chartStart, 0],
-                    [this.denseChartSize.width - 10, this.denseChartSize.height],
-                ])
-                .on("brush", brushed)
-        );
+        this.brush = d3.brushX()
+            .extent([
+                [this.chartStart, 0],
+                [this.denseChartSize.width - 10, this.denseChartSize.height],
+            ])
+            .on("brush", brushed);
+
+        this.denseSVG.call(this.brush);
 
         //'Number of Active Accounts'
         this.drawDenseChart();
@@ -431,6 +460,7 @@ class SocialStats {
         const chartHeight =
             this.denseChartSize.height - chartHeightOffset - chartSpaceAbove;
         const barChartOffset = 1;
+        const leftSideOffset = 20;
 
         //get the max element from the selected feature.
         let feature = this.sortInfo.feature;
@@ -472,10 +502,13 @@ class SocialStats {
             .attr("transform", "translate(" + this.chartStart + " " + 0 + " )")
             .call(yAxis);
 
+        this.yLabel.text(feature);
+
+
         //draw rectangles
         let barWidth =
             (1 / this.SenatorData.length) *
-            (this.denseChartSize.width - (55 + barChartOffset));
+            (this.denseChartSize.width - (55 + barChartOffset) - this.chartLeftSideOffset);
 
         this.denseG = this.denseSVG
             .selectChildren(".bars")
