@@ -117,8 +117,8 @@ class PartyTopTerms {
           );
           this.lastSort = "demPortionButton";
           this.data.sort((a, b) => {
-            const alpha = parseFloat(this.getPartyProportion(a, "B"));
-            const beta = parseFloat(this.getPartyProportion(b, "B"));
+            const alpha = parseFloat(this.getPartyProportion(a, "D"));
+            const beta = parseFloat(this.getPartyProportion(b, "D"));
             return alpha - beta;
           });
         }
