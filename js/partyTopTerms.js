@@ -19,7 +19,7 @@ class PartyTopTerms {
       .html(
         "Sort Alphabetically <span id=\"topTermsArrow\" style='font-size:17px;'>&#8648;</span>"
       )
-      .classed("topTermsNavButton", true)
+      .classed("topTermsNavButton btn btn-secondary ", true)
       .on("click", () => {
         if (this.lastSort === "topTermsNavButton") {
           this.data.reverse();
@@ -45,7 +45,7 @@ class PartyTopTerms {
       .html(
         "Sort by Party Ratio <span id=\"posNegArrow\" style='font-size:17px;'>&#8648;</span>"
       )
-      .classed("topTermsNavButton", true)
+      .classed("topTermsNavButton btn btn-secondary", true)
       .on("click", () => {
         if (this.lastSort === "posNegRatioButton") {
           this.data.reverse();
@@ -74,7 +74,7 @@ class PartyTopTerms {
       .html(
         "Sort by Republican Proportion <span id=\"repPortionArrow\"  style='font-size:17px;'>&#8648;</span>"
       )
-      .classed("topTermsNavButton", true)
+      .classed("topTermsNavButton btn btn-secondary", true)
       .on("click", () => {
         if (this.lastSort === "repPortionButton") {
           this.data.reverse();
@@ -102,7 +102,7 @@ class PartyTopTerms {
       .html(
         "Sort by Democrat Proportion <span id=\"demPortionArrow\" style='font-size:17px;'>&#8648;</span>"
       )
-      .classed("topTermsNavButton", true)
+      .classed("topTermsNavButton btn btn-secondary", true)
       .on("click", () => {
         if (this.lastSort === "demPortionButton") {
           this.data.reverse();
