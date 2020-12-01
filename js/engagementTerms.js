@@ -23,13 +23,13 @@ class EngagementTerms {
       .classed("facebook-btn", (d) => d == 0)
       .classed("twitter-btn", (d) => d == 1);
 
-    this.infoBox = new InfoBox("info-div", data);
+    this.infoBox = new InfoBox("info-div", data, 2015);
 
     this.engagementPlot = new EngagementPlot(
       "plot-div",
       data,
       2015,
-      (newSelection) => {
+      (newSelection, year) => {
         this.table.updateSelection(newSelection);
         if (newSelection.size == 1) {
           this.infoBox.update(Array.from(newSelection)[0]);
@@ -47,6 +47,7 @@ class EngagementTerms {
       (newYear) => {
         this.engagementPlot.updateYear(newYear);
         this.table.updateYear(newYear);
+        this.infoBox.updateYear(newYear);
       }
     );
 
@@ -593,7 +594,7 @@ class EngagementPlot {
   updateSelection(selection) {
     if (this.selection != selection) {
       this.selection = selection;
-      this.handleSelectionUpdate(selection);
+      this.handleSelectionUpdate(selection, this.activeYear);
       this.render();
     }
   }
@@ -825,17 +826,24 @@ class Table {
 }
 
 class InfoBox {
-  constructor(mountPoint, data) {
+  constructor(mountPoint, data, activeYear) {
     this.root = d3.select(`#${mountPoint}`);
     this.data = data;
+
+    this.activeYear = activeYear;
     this.label = this.root.append("div").attr("id", "info-box-label");
     this.table = this.root.append("table");
     this.update(undefined);
   }
 
+  updateYear(newYear) {
+    this.activeYear = newYear;
+  }
   update(selection) {
     if (selection) {
-      const datapoint = this.data.find((d) => selection == d.Party + d.Term);
+      const datapoint = this.data.find(
+        (d) => selection == d.Party + d.Term && this.activeYear == d.Year
+      );
       this.updateLabel(
         datapoint.Term,
         datapoint.Party,
