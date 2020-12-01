@@ -9,7 +9,9 @@ class PartyTopTerms {
     this.mountPoint = d3.select(`#${mountPoint}`);
 
     //make the nav
-    this.nav = this.mountPoint.append("div").classed("nav", true);
+    this.mountPoint.append('div').attr('id', 'partyTopTerms-title').classed('tier-title', true).text('Which terms were used most exclusively by each party?')
+    this.body = this.mountPoint.append('div').attr('id', 'party-top-terms-body')
+    this.nav = this.body.append("div").classed("nav", true);
 
     this.lastSort = "";
     this.nav
@@ -133,7 +135,7 @@ class PartyTopTerms {
 
     this.width = (data.length / columnSize) * colSpacing;
     this.height = 250;
-    this.rootSVG = this.mountPoint
+    this.rootSVG = this.body
       .append("div")
       .classed("topTermsParent", true)
       .append("svg")

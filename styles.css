@@ -36,9 +36,11 @@
   border: solid black 1px;
 }
 
+.tier-title {
+  font-size: x-large;
+  font-weight: bolder;
+}
 #engagement-title {
-    font-size: x-large;
-    font-weight: bolder;
 }
 
 #engagementTerms #left {
@@ -172,7 +174,7 @@
   word-break: normal;
 }
 
-#partyTopTerms {
+#party-top-terms-body {
   margin: auto;
   width: 95vw;
   height: 266px;

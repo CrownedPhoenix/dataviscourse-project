@@ -90,7 +90,8 @@ class EngagementPlot {
 
     this.engagementTitle = this.rootDiv
       .append("div")
-      .attr("id", "engagement-title");
+      .attr("id", "engagement-title")
+      .classed("tier-title", true);
     this.engagementTitle
       .append("div")
       .text("How did different terms affect engagement?");
@@ -173,7 +174,6 @@ class EngagementPlot {
       )
       .style("text-anchor", "middle")
       .style("font-size", "x-large");
-
 
     this.labelGroup = this.rootSVG.append("g").attr("id", "plot-label");
 
@@ -476,7 +476,11 @@ class EngagementPlot {
   }
 
   renderPlot(year) {
-    this.bottomLabel.text(`# of ${this.platform == 'Facebook' ? 'posts': "tweets"} in which term appeared`)
+    this.bottomLabel.text(
+      `# of ${
+        this.platform == "Facebook" ? "posts" : "tweets"
+      } in which term appeared`
+    );
     if (year != this.activeYear) {
       this.updatePlotData();
       this.rootSVG
