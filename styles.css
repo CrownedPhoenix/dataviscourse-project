@@ -36,7 +36,7 @@
   border: solid black 1px;
 }
 
-.tier-title {
+.tier-title div {
   font-size: x-large;
   font-weight: bolder;
 }

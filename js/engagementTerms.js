@@ -75,7 +75,7 @@ class EngagementPlot {
     console.log(rect);
     this.svgFullHeight = 300;
     this.svgFullWidth = rect.width;
-    this.margin = { top: 30, right: 10, left: 60, bottom: 50 };
+    this.margin = { top: 30, right: 10, left: 60, bottom: 100 };
     this.height = this.svgFullHeight - this.margin.top - this.margin.bottom;
     this.width = this.svgFullWidth - this.margin.left - this.margin.right;
     this.origin = { x: this.margin.left, y: this.margin.top };
@@ -96,6 +96,12 @@ class EngagementPlot {
     this.engagementTitle
       .append("div")
       .text("How did different terms affect engagement?");
+    this.rootDiv
+      .attr("id", "engagement-subtitle")
+      .append("p")
+      .text(
+        "Consider: Some terms appeared in relatively many posts but had relatively less impact compared to other terms that appeared less frequently."
+      );
 
     this.rootSVG = this.rootDiv
       .append("svg")
@@ -171,7 +177,35 @@ class EngagementPlot {
       .append("text")
       .attr(
         "transform",
+        `translate(${this.origin.x + this.width / 2},${this.height + 100})`
+      )
+      .style("text-anchor", "middle")
+      .style("font-size", "x-large");
+
+    this.bottomLabelTotal = this.rootSVG
+      .append("text")
+      .attr(
+        "transform",
+        `translate(${this.origin.x + this.width / 6},${this.height + 50})`
+      )
+      .style("text-anchor", "middle")
+      .style("font-size", "x-large")
+      .text("Total");
+
+    this.bottomLabelLeft = this.rootSVG
+      .append("text")
+      .attr(
+        "transform",
         `translate(${this.origin.x + this.width / 2},${this.height + 50})`
+      )
+      .style("text-anchor", "middle")
+      .style("font-size", "x-large");
+
+    this.bottomLabelRight = this.rootSVG
+      .append("text")
+      .attr(
+        "transform",
+        `translate(${this.origin.x + (5 * this.width) / 6},${this.height + 50})`
       )
       .style("text-anchor", "middle")
       .style("font-size", "x-large");
@@ -481,6 +515,14 @@ class EngagementPlot {
       `# of ${
         this.platform == "Facebook" ? "posts" : "tweets"
       } in which term appeared`
+    );
+
+    this.bottomLabelLeft.text(
+      `${this.platform == "Facebook" ? "Reactions" : "Favorites"}`
+    );
+
+    this.bottomLabelRight.text(
+      `${this.platform == "Facebook" ? "Shares" : "Retweets"}`
     );
     if (year != this.activeYear) {
       this.updatePlotData();
