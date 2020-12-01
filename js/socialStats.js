@@ -283,18 +283,22 @@ class SocialStats {
                     const keys = Object.keys(ele);
                     keys.forEach(key => {
                         const val = ele[key];
-                        let row = this.denseChartDataBreakdown.append('div').classed('breakdownRow', true);
-                        row.append('div').classed('rowTitle', true).html('<b>' + key + ':</b>');
-                        row.append('div').classed('rowData', true).text(val)
+                        if(key !== 'Party'){
+                            let row = this.denseChartDataBreakdown.append('div').classed('breakdownRow', true);
+                            row.append('div').classed('rowTitle', true).html('<b>' + key + ':</b>');
+                            row.append('div').classed('rowData', true).text(val)
+                        }
                     });
                 } else { //its a twitter element
                     let ele = d.tw;
                     const keys = Object.keys(ele);
                     keys.forEach(key => {
                         const val = ele[key];
-                        let row = this.denseChartDataBreakdown.append('div').classed('breakdownRow', true);
-                        row.append('div').classed('rowTitle', true).html('<b>' + key + ':</b>');
-                        row.append('div').classed('rowData', true).text(val)
+                        if(key !== 'Party') {
+                            let row = this.denseChartDataBreakdown.append('div').classed('breakdownRow', true);
+                            row.append('div').classed('rowTitle', true).html('<b>' + key + ':</b>');
+                            row.append('div').classed('rowData', true).text(val)
+                        }
                     });
                 }
             });
@@ -409,7 +413,7 @@ class SocialStats {
         this.denseSVG.append("text")
             .attr("transform", "translate(" + (this.denseChartSize.width / 2) + " ," + ( this.denseChartSize.height) + ")")
             .classed('label', true)
-            .text("Senators");
+            .text("Congress People");
 
         this.yLabel = this.denseSVG.append("text")
             .attr("transform", "rotate(-90)")
@@ -827,6 +831,9 @@ class SocialStats {
                 this.drawDenseChart();
                 this.drawZoomChart(this.zoomOffset, this.zoomchartWdith, this.zoomZoom);
             });
+
+        d3.selectAll('.aggCard')
+            .classed('selectedCard', data => data.title === 'Total Posts');
 
         //append title to cards
         this.cards

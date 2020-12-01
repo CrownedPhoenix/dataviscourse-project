@@ -19,11 +19,11 @@
 }
 
 .republican {
-  fill: #de0100;
+  fill: #d22532;
 }
 
 .democrat {
-  fill: #1405bd;
+  fill: #264e99;;
 }
 
 .transparent {
@@ -196,7 +196,6 @@
 .chartBlue {
   height: 100vh;
   width: 95vw;
-  background-color: #dce6f5;
   display: flex;
   flex-direction: column;
   margin: auto;
@@ -272,13 +271,11 @@
 }
 
 .denseChartToggle {
-  background-color: #de0100;
   width: 60vw;
   height: 100%;
 }
 
 .denseChart {
-  background-color: green;
   width: 100%;
   height: 70%;
 }
@@ -291,11 +288,7 @@
   border: black thin solid;
 }
 
-.denseChartDataBreakdown {
-  background-color: orange;
-  width: 100%;
-  height: 30%;
-}
+
 
 .hovered {
   stroke: black;
@@ -401,7 +394,7 @@ input[type="checkbox"]:focus {
   height: 30%;
   display: flex;
   flex-wrap: wrap;
-  flex-direction: column;
+  flex-direction: column-reverse;
   justify-content: space-between;
   overflow: auto;
   padding-left: 8px;
@@ -422,6 +415,7 @@ input[type="checkbox"]:focus {
 .controlParent {
   display: flex;
   justify-content: flex-start;
+  background-color: #dce6f5;
 
   height: 30vh;
 
