@@ -11,8 +11,9 @@ class PartyTopTerms {
     //make the nav
     this.mountPoint
       .append("div")
-      .attr("id", "partyTopTerms-title")
       .classed("tier-title", true)
+      .append("div")
+      .attr("id", "partyTopTerms-title")
       .text("Which terms were used most exclusively by each party?");
     this.body = this.mountPoint
       .append("div")
