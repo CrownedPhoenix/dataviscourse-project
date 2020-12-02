@@ -1,19 +1,20 @@
-loadData("/data/termsParty.csv").then((data) => {
+let fullURL =window.location.href;
+loadData(fullURL + "/data/termsParty.csv").then((data) => {
   console.log(data);
 
   const mountPoint = "partyTopTerms";
   const partyTopTerms = new PartyTopTerms(mountPoint, data);
 });
 
-loadData("/data/termsEngagement.csv").then((data) => {
+loadData(fullURL +"/data/termsEngagement.csv").then((data) => {
   console.log(data);
 
   const mountPoint = "engagementTerms";
   const engagementTerms = new EngagementTerms(mountPoint, data);
 });
 
-loadData("/data/Bioguide IDs.csv").then((bID) => {
-  loadData("/data/socialStats.csv").then((data) => {
+loadData(fullURL +"/data/Bioguide IDs.csv").then((bID) => {
+  loadData(fullURL +"/data/socialStats.csv").then((data) => {
     bioMap = bID.reduce((map, el) => {
       map[el.ID] = el.Name;
       return map;
