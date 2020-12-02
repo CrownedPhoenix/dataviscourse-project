@@ -201,21 +201,39 @@ class PartyTopTerms {
         //tooltip
         this.gEle
             .on("mouseenter", (e, d) => {
-            // const el = d3.select(e.target);
-            const html = this.genTooltipHtml(
-                d.Term,
-                'Proportion of Party',
-                d['Proportion of Party'],
-                'Positive-to-Negative Ratio',
-                d['Positive-to-Negative Ratio']
-            );
-            this.setTooltip(html, e.pageX, e.pageY);
-            // el.transition()
-            //     .duration(100)
-            //     .attr("r", this.circleHighlightRadius)
-            //     .style("stroke", "black")
-            //     .style("stroke-width", 2);
-        })
+                let curParty = '';
+                let otherParty = '';
+                let html = '';
+                if (d.Party === "R") {
+                  //is repub
+                    curParty = d["Proportion of Party"];
+                    otherParty = d["Proportion of Other Party"];
+                    html = this.genTooltipHtml(
+                        d.Term,
+                        'Republican',
+                        curParty,
+                        'Democrat',
+                        otherParty,
+                        'Positive-to-Negative Ratio',
+                        d['Positive-to-Negative Ratio']
+                    );
+                } else {
+                  //is democrat
+                    curParty = d["Proportion of Other Party"];
+                    otherParty = d["Proportion of Party"];
+                  html = this.genTooltipHtml(
+                      d.Term,
+                      'Republican',
+                      otherParty,
+                      'Democrat',
+                      curParty,
+                      'Positive-to-Negative Ratio',
+                      d['Positive-to-Negative Ratio']
+                  );
+                }
+
+                this.setTooltip(html, e.pageX, e.pageY);
+            })
             .on("mouseleave", (e) => {
                 // const el = d3.select(e.target);
                 this.setTooltip(undefined);
@@ -313,10 +331,12 @@ class PartyTopTerms {
         }
     }
 
-    genTooltipHtml(term, label1, content1, label2, content2) {
+    genTooltipHtml(term, label1, content1, label2, content2, label3, content3) {
         return `<h6>${term}</h6>
     <p><b>${label1}:</b> ${content1}</p>
     <br>
-    <b>${label2}:</b> ${content2}</p>`;
+    <p><b>${label2}:</b> ${content2}</p>
+    <br>
+     <p><b>${label3}:</b> ${content3}</p>`;
     }
 }
