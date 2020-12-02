@@ -1,19 +1,19 @@
-loadData("/data/termsParty.csv").then((data) => {
+loadData("https://github.com/CrownedPhoenix/dataviscourse-project/blob/all-three/data/termsParty.csv").then((data) => {
   console.log(data);
 
   const mountPoint = "partyTopTerms";
   const partyTopTerms = new PartyTopTerms(mountPoint, data);
 });
 
-loadData("/data/termsEngagement.csv").then((data) => {
+loadData("https://github.com/CrownedPhoenix/dataviscourse-project/blob/all-three/data/termsEngagement.csv").then((data) => {
   console.log(data);
 
   const mountPoint = "engagementTerms";
   const engagementTerms = new EngagementTerms(mountPoint, data);
 });
 
-loadData("/data/Bioguide IDs.csv").then((bID) => {
-  loadData("/data/socialStats.csv").then((data) => {
+loadData("https://github.com/CrownedPhoenix/dataviscourse-project/blob/all-three/data/Bioguide%20IDs.csv").then((bID) => {
+  loadData("https://github.com/CrownedPhoenix/dataviscourse-project/blob/all-three/data/socialStats.csv").then((data) => {
     bioMap = bID.reduce((map, el) => {
       map[el.ID] = el.Name;
       return map;
