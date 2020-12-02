@@ -24,3 +24,5 @@ Just D3.
 - Click on a bar in the zoom window to display more data about that congress person
 
 [Process Book](https://docs.google.com/presentation/d/1YvFvOXw1-u1KIWso4YhxSK4j8BbImXgDR_Y-u6DOC58/edit?usp=sharing)
+Website: https://crownedphoenix.github.io/dataviscourse-project/
+Screencast: https://youtu.be/t0AeSsiszm0
