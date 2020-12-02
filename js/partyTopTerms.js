@@ -223,9 +223,9 @@ class PartyTopTerms {
                     otherParty = d["Proportion of Party"];
                   html = this.genTooltipHtml(
                       d.Term,
-                      'Republican',
-                      otherParty,
                       'Democrat',
+                      otherParty,
+                      'Republicam',
                       curParty,
                       'Positive-to-Negative Ratio',
                       d['Positive-to-Negative Ratio']
