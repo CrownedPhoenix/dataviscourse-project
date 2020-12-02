@@ -1,6 +1,9 @@
 # dataviscourse-project
 Course project for Data Viz 2020
 
+## Resources
+Just D3.
+
 ## Feature Notes
 ### First Tier
 - Sort with buttons to the left side.
